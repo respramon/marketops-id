@@ -24,7 +24,7 @@ from typing import TYPE_CHECKING, Any
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from . import DISCLAIMER, __version__
-from .config import REPO_ROOT
+from .config import asset_path
 from .models import Priority, RunReport, RunStatus
 
 if TYPE_CHECKING:
@@ -32,8 +32,8 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-TEMPLATE_DIR = REPO_ROOT / "templates"
-STATIC_DIR = REPO_ROOT / "static"
+TEMPLATE_DIR = asset_path("templates")
+STATIC_DIR = asset_path("static")
 
 PRIORITY_ORDER = (Priority.P1, Priority.P2, Priority.P3)
 

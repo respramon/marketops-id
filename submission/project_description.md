@@ -53,7 +53,7 @@ evidence, credit usage, and run history. New queues can be delivered through a
 Discord or generic webhook.
 
 The engineering checks pass locally: Ruff, strict mypy, and 375 pytest tests
-with 95.28% measured coverage (27 August 2026 WIB). Authenticated live API
+with 95.08% measured coverage (27 August 2026 WIB). Authenticated live API
 execution, webhook delivery evidence, and genuine scheduled-run proof remain
 external account actions and must be completed before this copy is used as a
 final submission claim.

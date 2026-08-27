@@ -51,7 +51,7 @@ Locally verified on 2026-08-27:
 ```text
 ruff check .                                      PASS
 mypy src                                          PASS (13 source files)
-pytest --cov=marketops --cov-report=term-missing  PASS (375 tests, 95.28% coverage)
+pytest --cov=marketops --cov-report=term-missing  PASS (375 tests, 95.08% coverage)
 ```
 
 One third-party FastAPI/Starlette TestClient deprecation warning was emitted;

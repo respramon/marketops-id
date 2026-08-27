@@ -74,7 +74,7 @@ final media, or portal access. Re-run every check immediately before submission.
 - [x] `ruff check .` passed locally on 2026-08-27.
 - [x] `mypy src` passed locally on 2026-08-27 for 13 source files.
 - [x] `pytest --cov=marketops --cov-report=term-missing` passed locally on
-  2026-08-27: 375 tests, 95.28% coverage.
+  2026-08-27: 375 tests, 95.08% coverage.
 - [x] Unit and integration coverage includes scoring, normalization,
   deduplication, persistence, retry/failure mapping, pipeline, CLI, notifier,
   rendering, and dashboard.

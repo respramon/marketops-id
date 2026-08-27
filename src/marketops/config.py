@@ -13,6 +13,7 @@ Two distinct concerns live here:
 from __future__ import annotations
 
 from functools import lru_cache
+from importlib import resources
 from pathlib import Path
 from typing import Any
 
@@ -20,9 +21,34 @@ import yaml
 from pydantic import BaseModel, Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_SCORING_PATH = REPO_ROOT / "config" / "scoring.yml"
-DEFAULT_WATCHLIST_PATH = REPO_ROOT / "config" / "watchlist.yml"
+# Development uses the repository's human-editable assets. A built wheel has
+# those same assets force-included under ``marketops/resources`` (see
+# ``pyproject.toml``), so GitHub Actions can install the package normally and
+# still execute from any working directory.
+_SOURCE_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = _SOURCE_ROOT if (_SOURCE_ROOT / "config").is_dir() else Path.cwd()
+
+
+def asset_path(*parts: str) -> Path:
+    """Locate a repository asset in source checkout or installed package.
+
+    The top-level ``config/``, ``fixtures/``, ``templates/``, and ``static/``
+    directories stay editable and visible to hackathon judges. Hatch force-
+    includes them in the wheel so the production workflow does not accidentally
+    depend on editable installation or a source checkout layout.
+    """
+    local = REPO_ROOT.joinpath(*parts)
+    if local.exists():
+        return local
+    packaged = resources.files("marketops").joinpath("resources")
+    for part in parts:
+        packaged = packaged.joinpath(part)
+    return Path(str(packaged))
+
+
+DEFAULT_SCORING_PATH = asset_path("config", "scoring.yml")
+DEFAULT_WATCHLIST_PATH = asset_path("config", "watchlist.yml")
+DEFAULT_FIXTURE_DIR = asset_path("fixtures", "sanitized")
 
 SECTORS_BASE_URL = "https://api.sectors.app"
 """Verified against https://docs.sectors.app/schema.json (OpenAPI 3.0.3, v2.0.0)."""
@@ -70,9 +96,7 @@ class Settings(BaseSettings):
     watchlist_path: Path = Field(
         default=DEFAULT_WATCHLIST_PATH, validation_alias="MARKETOPS_WATCHLIST_PATH"
     )
-    fixture_dir: Path = Field(
-        default=REPO_ROOT / "fixtures" / "sanitized", validation_alias="MARKETOPS_FIXTURE_DIR"
-    )
+    fixture_dir: Path = Field(default=DEFAULT_FIXTURE_DIR, validation_alias="MARKETOPS_FIXTURE_DIR")
 
     # --- HTTP reliability ---------------------------------------------------
     http_timeout: float = Field(default=15.0, gt=0, validation_alias="MARKETOPS_HTTP_TIMEOUT")
