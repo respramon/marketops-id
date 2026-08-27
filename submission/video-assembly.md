@@ -42,8 +42,9 @@ workflow configuration screen for live scheduled-run proof.
    transitions, captions, or a presenter overlay.
 4. Export the teaser at no more than 60 seconds and the judging video at no
    more than 3 minutes. Watch both exports end-to-end with audio and captions.
-5. Verify that every public repository/video link works in a logged-out browser.
-   Until then, each is `[BLOCKED: HUMAN ACTION REQUIRED]`.
+5. Re-verify the repository and every video link in a logged-out browser. The
+   repository is already public; each unpublished video remains
+   `[BLOCKED: HUMAN ACTION REQUIRED]`.
 
 ## Evidence Gates Before Publishing
 
@@ -53,8 +54,10 @@ workflow configuration screen for live scheduled-run proof.
   reviewable delivery. A dry-notify card is not delivery evidence.
 - Genuine GitHub Actions scheduled runs: `[BLOCKED]` until three real `schedule`
   events have been recorded in `evidence/unattended-runs.md`.
-- Public repository and video links: `[PENDING]` until they are public/unlisted
-  as required and accessible without the owner's login.
+- Public repository: `[PASS]` at <https://github.com/respramon/marketops-id>,
+  verified logged out on 2026-08-27.
+- Public/unlisted video links: `[PENDING]` until uploaded and accessible without
+  the owner's login.
 
 If any gate is still blocked, retain the pending disclosure in the judging
 video and do not claim completion of that external step.

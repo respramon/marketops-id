@@ -22,5 +22,5 @@ logged-out browser.
   a fixture artifact is visible.
 - Do not show a Discord result unless it is a real delivery; do not imply that
   the configured schedule has already run.
-- Replace `[PUBLIC_REPOSITORY_URL]` and `[PUBLIC_TEASER_URL]` only after those
-  links are real and anonymous access has been tested.
+- Replace `[PUBLIC_TEASER_URL]` only after that link works without
+  authentication; the public repository URL is already final.

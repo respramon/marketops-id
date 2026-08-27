@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">MarketOps ID public hosted-runner deduplication QA</title>
+  <desc id="desc">Two public manual fixture runs show 16 new events on the first run and 16 duplicates suppressed on the second after restoring SQLite cache. This is manual QA, not scheduled-run proof.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#07101c"/>
+      <stop offset="1" stop-color="#101b2a"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#48d8a4"/>
+      <stop offset="1" stop-color="#62a8ff"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="26" flood-color="#000814" flood-opacity="0.42"/>
+    </filter>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <circle cx="1435" cy="95" r="240" fill="#17365b" opacity="0.28"/>
+  <circle cx="90" cy="835" r="300" fill="#0d4a41" opacity="0.22"/>
+
+  <text x="92" y="92" fill="#7f94ae" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="24" font-weight="700" letter-spacing="3">MARKETOPS ID · PUBLIC HOSTED-RUNNER QA</text>
+  <text x="92" y="156" fill="#f4f8ff" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="50" font-weight="750">State survives. Repeat noise does not.</text>
+  <rect x="92" y="188" width="660" height="48" rx="24" fill="#38251a" stroke="#f1a85b" stroke-width="1.5"/>
+  <text x="122" y="220" fill="#ffd29f" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="21" font-weight="700">MANUAL FIXTURE TEST · NOT SCHEDULED-RUN PROOF</text>
+
+  <g filter="url(#shadow)">
+    <rect x="92" y="286" width="600" height="430" rx="28" fill="#111f30" stroke="#28415d" stroke-width="2"/>
+    <rect x="908" y="286" width="600" height="430" rx="28" fill="#111f30" stroke="#2d5a58" stroke-width="2"/>
+  </g>
+
+  <circle cx="142" cy="338" r="17" fill="#62a8ff"/>
+  <text x="179" y="348" fill="#f4f8ff" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="30" font-weight="700">Hosted run 1</text>
+  <text x="142" y="392" fill="#8fa4bd" font-family="ui-monospace,SFMono-Regular,Consolas,monospace" font-size="20">Actions #33036266340 · workflow_dispatch</text>
+  <line x1="142" y1="422" x2="640" y2="422" stroke="#29425e"/>
+
+  <text x="142" y="477" fill="#9cb0c7" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="21">New events</text>
+  <text x="625" y="484" fill="#f4f8ff" text-anchor="end" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="45" font-weight="800">16</text>
+  <text x="142" y="543" fill="#9cb0c7" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="21">Dry preview cards</text>
+  <text x="625" y="550" fill="#f4f8ff" text-anchor="end" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="45" font-weight="800">5</text>
+  <text x="142" y="609" fill="#9cb0c7" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="21">Actual deliveries</text>
+  <text x="625" y="616" fill="#f4f8ff" text-anchor="end" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="45" font-weight="800">0</text>
+  <rect x="142" y="652" width="498" height="40" rx="12" fill="#172b43"/>
+  <text x="166" y="679" fill="#9fc9ff" font-family="ui-monospace,SFMono-Regular,Consolas,monospace" font-size="18">SQLite state saved to private Actions cache</text>
+
+  <circle cx="958" cy="338" r="17" fill="#48d8a4"/>
+  <text x="995" y="348" fill="#f4f8ff" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="30" font-weight="700">Identical hosted run 2</text>
+  <text x="958" y="392" fill="#8fa4bd" font-family="ui-monospace,SFMono-Regular,Consolas,monospace" font-size="20">Actions #33036310666 · workflow_dispatch</text>
+  <line x1="958" y1="422" x2="1456" y2="422" stroke="#2d514f"/>
+
+  <text x="958" y="477" fill="#9cb0c7" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="21">Duplicate events suppressed</text>
+  <text x="1441" y="484" fill="#62edbd" text-anchor="end" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="45" font-weight="800">16</text>
+  <text x="958" y="543" fill="#9cb0c7" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="21">New preview cards</text>
+  <text x="1441" y="550" fill="#62edbd" text-anchor="end" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="45" font-weight="800">0</text>
+  <text x="958" y="609" fill="#9cb0c7" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="21">Run history entries</text>
+  <text x="1441" y="616" fill="#62edbd" text-anchor="end" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="45" font-weight="800">2</text>
+  <rect x="958" y="652" width="498" height="40" rx="12" fill="#17332f"/>
+  <text x="982" y="679" fill="#8ef2cf" font-family="ui-monospace,SFMono-Regular,Consolas,monospace" font-size="18">Prior SQLite cache restored before pipeline</text>
+
+  <path d="M724 490 H868" stroke="url(#accent)" stroke-width="7" stroke-linecap="round"/>
+  <path d="M848 470 L874 490 L848 510" fill="none" stroke="#59c0d6" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="796" y="451" fill="#a9bdd2" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="18" font-weight="700">RESTORE</text>
+  <text x="796" y="545" fill="#7890aa" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,Consolas,monospace" font-size="16">SHA-256 fingerprints</text>
+
+  <rect x="92" y="766" width="1416" height="72" rx="20" fill="#0a1421" stroke="#253a52"/>
+  <text x="126" y="799" fill="#7f94ae" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="18">PUBLIC EVIDENCE</text>
+  <text x="126" y="825" fill="#d9e5f2" font-family="ui-monospace,SFMono-Regular,Consolas,monospace" font-size="16">github.com/respramon/marketops-id/actions/runs/33036266340  ·  /33036310666</text>
+  <text x="1467" y="813" text-anchor="end" fill="#f4f8ff" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="20" font-weight="700">Fixture data · zero live API credits</text>
+</svg>

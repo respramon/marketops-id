@@ -8,11 +8,13 @@ penetration test of Sectors, Discord, GitHub, or the operator's workstation.
 
 ## Result
 
-**PASS for the local working tree, with external evidence gates still pending.**
+**PASS for the working tree and published Git history, with external evidence
+gates still pending.**
 
-No credential value was found in the scanned working tree. The repository had
-no commits at audit time, so a full Git-history scan must be repeated after the
-first commit and again immediately before freeze.
+No credential value was found in the working tree, index, or four commits
+through `841b55f`. The public repository was also opened in a logged-out
+browser. This audit is repeated immediately before freeze because later commits
+or recording artifacts can introduce new exposure.
 
 ## Checks Performed
 
@@ -20,8 +22,8 @@ first commit and again immediately before freeze.
 |---|---|---|
 | Environment-only credentials | PASS | `Settings` reads `SECTORS_API_KEY`, `DISCORD_WEBHOOK_URL`, and `GENERIC_WEBHOOK_URL` as `SecretStr`; no source file contains a production value. |
 | Ignore policy | PASS | `.env`, keys, databases, logs, artifacts, cache directories, and browser-test output are ignored. `.env.example` contains empty placeholders only. |
-| Working-tree secret scan | PASS | Pattern scan detected only intentionally fake test values in `tests/`; no real key/token value was found. Output was limited to paths so no candidate value was exposed. |
-| Git-history secret scan | PENDING | `git log --all` was empty at audit time. Re-run after commit/push and before submission. |
+| Working-tree secret scan | PASS | A strict production-credential pattern scan returned zero matches in the working tree and index. Only aggregate counts were printed, never candidate values. |
+| Git-history secret scan | PASS | The same scan returned zero matches across all four commits through `841b55f`. Re-run after the final commit and immediately before submission. |
 | API request security | PASS | Sectors base URL is fixed to HTTPS; the raw API key is sent only in the verified `Authorization` header and is never logged. |
 | Webhook secrecy | PASS | Webhook exceptions report sink/status only, not URLs. Payloads and artifacts omit configured webhook URLs. |
 | Untrusted source links | PASS | Provenance URLs accept only absolute HTTP(S) links with a host and reject control characters, `javascript:`, `data:`, and relative URLs. |
@@ -29,7 +31,20 @@ first commit and again immediately before freeze.
 | Dashboard hardening | PASS | Read-only routes, Trusted Host allowlist, disabled interactive docs by default, CSP with scripts disabled, `nosniff`, `DENY` framing, referrer policy, permissions policy, and no-store cache headers are tested. |
 | SQLite safety | PASS | All value queries are parameterized. Table/column names are static internal SQL. WAL mode and transactional event claims protect state writes. |
 | CI secret handling | PASS | Workflow reads secrets only through GitHub Secrets, disables checkout credential persistence, and uploads artifacts that contain no configured webhook URL or API key. |
+| Workflow supply chain | PASS | Official GitHub Actions are pinned to full immutable commit SHAs corresponding to verified releases; action upgrades require an explicit reviewed change. |
 | Dependency repeatability | PASS | Direct dependencies are exact-pinned and `uv.lock` is committed for reproducible resolution. |
+| Installed distribution | PASS | Public CI builds and installs the wheel outside the checkout, then runs `doctor` and fixture mode to prove packaged configuration, templates, static assets, and fixtures are present. |
+
+### GitHub Actions release pins
+
+Verified against the official GitHub release API on 2026-08-27:
+
+| Action | Release | Immutable commit |
+|---|---|---|
+| `actions/checkout` | `v7.0.1` | `3d3c42e5aac5ba805825da76410c181273ba90b1` |
+| `actions/setup-python` | `v7.0.0` | `5fda3b95a4ea91299a34e894583c3862153e4b97` |
+| `actions/cache` | `v6.1.0` | `55cc8345863c7cc4c66a329aec7e433d2d1c52a9` |
+| `actions/upload-artifact` | `v7.0.1` | `043fb46d1a93c77aae656e7c1c64a875d1fc6a0a` |
 
 ## Threat Boundaries and Controls
 
@@ -44,14 +59,16 @@ first commit and again immediately before freeze.
 ## Residual Risk and Required Final Checks
 
 1. Add real values only through GitHub Secrets or an ignored local `.env`; never paste them into an issue, terminal recording, screenshot, artifact, or this repository.
-2. After the first commit, scan all history. If a real secret is found, revoke/rotate it before any public push and clean history according to GitHub guidance.
+2. Repeat the full-history scan after the final commit. If a real secret is
+   found, stop, revoke/rotate it, and clean history according to GitHub
+   guidance before submission.
 3. Before recording, inspect browser tabs, terminal output, Actions logs, downloaded artifacts, and Discord screenshots for credential exposure.
 4. Add the exact deployed dashboard hostname to `MARKETOPS_ALLOWED_HOSTS` before exposing the FastAPI service beyond local use.
 5. GitHub Actions cache is persistence for this small daily workflow, not a backup service. Archive the three qualifying run artifacts separately before cache/artifact retention expires.
 
 ## Non-Findings Clarification
 
-The test suite contains deliberately non-routable/example credential-shaped
-strings to prove redaction behavior. They are not production credentials and
-are exercised only through mocked HTTP. This distinction is documented so a
-future scanner finding is investigated rather than silently ignored.
+The test suite contains deliberately non-routable/example values to prove
+redaction behavior. They are not production credentials and are exercised only
+through mocked HTTP. This distinction is documented so a future broader
+scanner finding is investigated rather than silently ignored.

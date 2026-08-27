@@ -6,7 +6,7 @@ final media, or portal access. Re-run every check immediately before submission.
 
 ## Eligibility and Rules
 
-- [x] Official homepage, rules, and Track 2 page reviewed on 2026-08-26.
+- [x] Official homepage, rules, and Track 2 page re-verified on 2026-08-27.
 - [x] Solo participation is allowed.
 - [x] Solo participant explicitly confirmed Sectors onboarding was completed
   before implementation.
@@ -14,7 +14,8 @@ final media, or portal access. Re-run every check immediately before submission.
   residency and every other personal eligibility condition.
 - [ ] Confirm participant is registered on only one team and submits only this
   project.
-- [ ] Confirm project/repository provenance begins within the build period.
+- [x] Repository creation and first commit are both dated 2026-08-27, within
+  the official build period.
 - [ ] Confirm the project is exclusive to this hackathon and not cross-submitted.
 - [ ] Reopen official rules immediately before freeze and update
   `docs/rules-verification.md` if anything changed.
@@ -78,18 +79,25 @@ final media, or portal access. Re-run every check immediately before submission.
 - [x] Unit and integration coverage includes scoring, normalization,
   deduplication, persistence, retry/failure mapping, pipeline, CLI, notifier,
   rendering, and dashboard.
-- [ ] CI workflow committed and first public GitHub Actions quality run green.
-- [x] Local quality-gate output captured as `submission/assets/test-pass.png`
-  and visibly labeled **not GitHub Actions CI**.
+- [x] CI workflow committed; public
+  [run `33036454974`](https://github.com/respramon/marketops-id/actions/runs/33036454974)
+  passed every quality gate, including installed-wheel smoke.
+- [x] Public logged-out CI capture saved as
+  `submission/assets/test-pass.png`; the separate local QA summary is
+  `submission/assets/test-pass.svg`.
 
 ## Automation and Track 2 Proof
 
-- [ ] Scheduled workflow committed with weekday `00:17 UTC` / approximately
+- [x] Scheduled workflow committed with weekday `00:17 UTC` / approximately
   `07:17 WIB` cron.
-- [ ] `workflow_dispatch` retained only for testing and clearly distinguished.
-- [ ] SQLite state restore/save verified across separate hosted runners.
-- [ ] Workflow uploads logs, run summary, HTML, JSON metadata, and history.
-- [ ] GitHub step summary exposes run counters and artifact name.
+- [x] `workflow_dispatch` retained only for testing and clearly distinguished.
+- [x] SQLite fixture state restore/save verified across separate hosted runners:
+  [first run](https://github.com/respramon/marketops-id/actions/runs/33036266340)
+  stored 16 new events; the
+  [second](https://github.com/respramon/marketops-id/actions/runs/33036310666)
+  restored them and suppressed all 16. This is QA, not Track 2 proof.
+- [x] Workflow uploads logs, run summary, HTML, JSON metadata, and history.
+- [x] GitHub step summary exposes run counters and artifact name.
 - [ ] Genuine scheduled run 1 recorded in `evidence/unattended-runs.md`.
 - [ ] Genuine scheduled run 2 recorded in `evidence/unattended-runs.md`.
 - [ ] Genuine scheduled run 3 recorded in `evidence/unattended-runs.md`.
@@ -102,16 +110,20 @@ final media, or portal access. Re-run every check immediately before submission.
 - [x] Secrets load from environment variables / GitHub Secrets.
 - [x] `.env`, databases, artifacts, keys, logs, and caches are ignored.
 - [x] `doctor` reports presence/status without printing secret values.
-- [ ] Run final working-tree credential scan.
-- [ ] Run full Git-history credential scan after final commit.
+- [x] Pre-publication working-tree and index credential scan returned zero
+  strict-pattern matches on 2026-08-27.
+- [x] Full Git-history scan returned zero strict-pattern matches through
+  commit `841b55f`; repeat after the final commit during freeze.
 - [ ] If any secret was committed: stop, revoke and rotate it, clean history as
   appropriate before submission, and follow the official post-freeze exception
   if already submitted.
-- [ ] Verify license and third-party asset/font provenance.
-- [ ] Create the repository during the official build period and push final
-  history.
-- [ ] `[BLOCKED: HUMAN ACTION REQUIRED]` Make repository public and verify it in
-  a logged-out browser.
+- [x] MIT license and demo-asset provenance are documented; no unlicensed
+  third-party visual or font is bundled.
+- [x] Repository created during the build period and project history pushed to
+  `main`.
+- [x] Public repository verified in a logged-out browser:
+  <https://github.com/respramon/marketops-id>.
+- [ ] Push the final freeze commit/tag and verify the public worktree state.
 - [ ] Keep repository public for at least 90 days after the winner announcement.
 
 ## Demo Assets and Videos
@@ -121,7 +133,8 @@ final media, or portal access. Re-run every check immediately before submission.
 - [ ] `submission/assets/actions-history.png` captured from real Actions.
 - [ ] `submission/assets/scheduled-run.png` captured from a real schedule run.
 - [ ] `submission/assets/discord-result.png` captured from real delivery.
-- [x] `submission/assets/test-pass.png` captured as local QA evidence only.
+- [x] `submission/assets/test-pass.png` captured from successful public CI;
+  `test-pass.svg` retains the local QA summary.
 - [x] `submission/assets/architecture.png` generated and reviewed.
 - [x] 57-second teaser script, storyboard, and captions prepared.
 - [x] 2:48 judging script, storyboard, and captions prepared.
@@ -141,7 +154,8 @@ final media, or portal access. Re-run every check immediately before submission.
 - [x] Solo team snapshot template prepared.
 - [x] Social post copy prepared without guessing the official handle.
 - [ ] Insert registered participant name.
-- [ ] Insert final public repository URL.
+- [x] Public repository URL inserted:
+  <https://github.com/respramon/marketops-id>.
 - [ ] Insert final teaser URL and judging video URL.
 - [ ] Verify official Sectors social handle and replace placeholder.
 - [ ] `[BLOCKED: HUMAN ACTION REQUIRED]` Publish social post and save its URL.
@@ -171,7 +185,8 @@ final media, or portal access. Re-run every check immediately before submission.
 
 ## Current Human Gate
 
-`[BLOCKED: HUMAN ACTION REQUIRED]` Create/select the public GitHub repository,
-configure `SECTORS_API_KEY` and one webhook as GitHub Secrets, push the project,
-and enable Actions. This single account-owner action unlocks live smoke testing,
-scheduled-run evidence, webhook evidence, and final recording.
+`[BLOCKED: HUMAN ACTION REQUIRED]` Add `SECTORS_API_KEY` and either
+`DISCORD_WEBHOOK_URL` or `GENERIC_WEBHOOK_URL` as repository Actions Secrets.
+The public repository, CI, and fixture workflow are already operational; this
+single account-owner action unlocks live smoke testing, scheduled-run evidence,
+webhook evidence, and final recording.

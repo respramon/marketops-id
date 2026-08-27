@@ -28,7 +28,7 @@ The first verified replay detected 16 new events and rendered five dry-notify ca
 
 8
 00:01:50,000 --> 00:02:12,000
-Track 2 proof requires genuine GitHub Actions runs whose event is schedule, not a manual dispatch. This evidence is currently pending.
+The public repository, CI, artifact upload, and cross-run cache work. Track 2 still requires genuine schedule events, not these manual QA dispatches. The API key, webhook, and scheduled history remain pending.
 
 9
 00:02:12,000 --> 00:02:31,000

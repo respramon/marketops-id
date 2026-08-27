@@ -219,7 +219,9 @@ current market monitoring.
   30-record page per list endpoint to protect the 15-credit budget; a
   `has_next` response is disclosed as incomplete evidence.
 - It is a single-team, single-state workflow without user authentication.
-- SQLite CI durability depends on correctly configured workflow persistence.
+- SQLite cache persistence was verified across two separate manual hosted
+  workflow runs. GitHub Actions cache remains operational state rather than a
+  backup, and genuine schedule-triggered durability evidence is still pending.
 - Webhooks provide delivery, not acknowledgment or escalation tracking.
 - `max_concurrency` is configurable for future expansion; the current client
   issues calls sequentially for deterministic budget and retry behavior.

@@ -22,7 +22,7 @@ every point, while persistent event fingerprints stop repeat alerts.
 This is not a stock-picking or trading tool. A high score means "review this
 evidence first," not buy or sell.
 
-Project: [PUBLIC_REPOSITORY_URL]
+Project: https://github.com/respramon/marketops-id
 
 One-minute demo: [PUBLIC_TEASER_URL]
 Built for [VERIFIED_OFFICIAL_SECTORS_HANDLE]
@@ -39,7 +39,7 @@ Sectors API v2. It connects filings, suspensions, movers, news, foreign flow,
 and corporate actions into an explainable P1/P2/P3 queue, then suppresses repeat
 alerts. Research triage only - no trading advice or execution.
 
-[PUBLIC_REPOSITORY_URL] [PUBLIC_TEASER_URL]
+https://github.com/respramon/marketops-id [PUBLIC_TEASER_URL]
 [VERIFIED_OFFICIAL_SECTORS_HANDLE]
 
 #SectorsHackathon #IDX #Automation

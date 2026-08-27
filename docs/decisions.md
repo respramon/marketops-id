@@ -179,3 +179,30 @@ otherwise.
   investment decision itself.
 - **Consequence:** A score means "review this evidence sooner" and every user
   surface carries the research-triage disclaimer.
+
+## ADR-016: Package runtime assets and test the installed wheel
+
+- **Date:** 2026-08-27
+- **Status:** Accepted
+- **Decision:** Include scoring/watchlist configuration, sanitized fixtures,
+  templates, and static files beneath `marketops/resources` in the wheel while
+  retaining repository-relative paths for source development. CI uninstalls
+  the editable package, installs the built wheel, changes to an unrelated
+  temporary directory, and runs `doctor` plus a fixture pipeline smoke test.
+- **Why:** Editable-source tests can pass even when a built distribution omits
+  non-Python runtime assets. The hosted scheduler exposed exactly this class
+  of packaging defect.
+- **Consequence:** Both source checkouts and normal `pip install .` executions
+  resolve the same assets. A future wheel/resource regression fails CI before
+  it can break a scheduled run.
+
+## ADR-017: Pin third-party GitHub Actions by immutable commit
+
+- **Date:** 2026-08-27
+- **Status:** Accepted
+- **Decision:** Reference official `actions/*` releases by their full commit
+  SHA and retain the verified release tag in an inline comment.
+- **Why:** Immutable references reduce workflow supply-chain exposure and make
+  the exact runner implementation auditable.
+- **Consequence:** Action upgrades are explicit repository changes. Their tags,
+  SHAs, and hosted-run behavior must be re-verified when updated.

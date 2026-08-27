@@ -27,7 +27,7 @@ qualification claim. Never replace a pending shot with a mock, a
 | 00:58–01:17 | P1 card + component list | Fixture banner | The Research Attention Score is deterministic and shows each reason. |
 | 01:17–01:34 | Suspension card + disclaimer | `Research triage only` | Suspensions can force P1; this is not a trade recommendation. |
 | 01:34–01:50 | Replay result | `Preview only — no external delivery` | SQLite fingerprints make a repeated data window quiet on the second run. |
-| 01:50–02:12 | Real `actions-history.png` only after capture | Must show event `schedule` | Three genuine schedule-triggered runs are required for Track 2 proof. Keep the pending card if unavailable. |
+| 01:50–02:12 | `assets/test-pass.png`, `assets/hosted-dedupe-qa.png`, then the pending schedule card | Label the first two as public CI/manual QA, **not** scheduled proof | Public engineering infrastructure works; three genuine schedule-triggered runs are still required for Track 2 qualification. |
 | 02:12–02:31 | Real `scheduled-run.png`, artifact, and `discord-result.png` only if delivered | Match run ID, timestamp, mode, and trigger | Evidence must show the actual unattended run and truthful delivery outcome. |
 | 02:31–02:48 | Closing dashboard/architecture frame | None | MarketOps transforms Sectors evidence into an auditable research queue. |
 
@@ -37,7 +37,10 @@ qualification claim. Never replace a pending shot with a mock, a
 - `assets/actions-history.png`, `assets/scheduled-run.png`, and
   `assets/discord-result.png` are clearly marked placeholders until replaced
   by real external evidence. They must not appear as proof.
-- `assets/test-pass.png` records local QA only; it is not GitHub Actions CI.
+- `assets/test-pass.png` records successful public push-triggered CI; it is not
+  scheduled-run proof. `assets/test-pass.svg` is the local QA-only summary.
+- `assets/hosted-dedupe-qa.png` summarizes the two linked public manual fixture
+  runs and is visibly labeled non-qualifying QA.
 - `marketops-*-visual-no-voice.mp4` files are visual timelines, not final
   public videos. Add narration and the corresponding captions before upload.
 

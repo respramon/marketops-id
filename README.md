@@ -2,6 +2,8 @@
 
 **Autonomous IDX Research Triage**
 
+[![CI](https://github.com/respramon/marketops-id/actions/workflows/ci.yml/badge.svg)](https://github.com/respramon/marketops-id/actions/workflows/ci.yml)
+
 MarketOps ID helps Indonesian equity research analysts stop manually scanning
 disconnected market events. Every weekday at **07:17 WIB**, a scheduled
 pipeline uses the **Sectors Financial API v2** to discover IDX filings,
@@ -134,6 +136,14 @@ Scheduled cycles use live mode, restore the prior SQLite state from a private
 Actions cache, write a step summary, and upload logs plus HTML/JSON artifacts.
 They never auto-commit runtime state.
 
+Two public `workflow_dispatch` fixture runs on 27 August 2026 verified the
+same hosted-runner installation, artifact upload, and cache restore/save path:
+[run one](https://github.com/respramon/marketops-id/actions/runs/33036266340)
+observed 16 new events, while
+[run two](https://github.com/respramon/marketops-id/actions/runs/33036310666)
+restored state and suppressed all 16. These are engineering QA runs, not
+scheduled-run proof.
+
 Track 2 qualification is not claimed from manual runs. Genuine scheduled-run
 links, timestamps, screenshots, and artifact names belong in
 [`evidence/unattended-runs.md`](evidence/unattended-runs.md); the project target
@@ -153,12 +163,19 @@ normalization, persistent deduplication, all-success and partial-failure
 pipelines, 429 retry, repeated 500, timeouts, malformed API responses,
 notifications, CLI commands, and the read-only dashboard.
 
+The public [CI run for commit `841b55f`](https://github.com/respramon/marketops-id/actions/runs/33036454974)
+passed Ruff, strict mypy, 375 tests at 95.08% coverage, and an installed-wheel
+smoke test executed outside the checkout. The wheel gate protects packaged
+configuration, fixtures, templates, and static assets from deployment-only
+regressions.
+
 Security defaults include environment-only secrets, an HTTPS-only Sectors API
 target,
 safe HTTP(S) provenance links, Jinja auto-escaping, a strict script-free CSP,
 Host validation, security headers, parameterized SQLite, pinned direct
-dependencies plus `uv.lock`, and no browser-side secret storage. The final
-audit and credential-history scan are documented in `docs/` before freeze.
+dependencies plus `uv.lock`, SHA-pinned GitHub Actions, and no browser-side
+secret storage. The pre-publication audit and credential-history scan are
+documented in `docs/`; both are repeated immediately before freeze.
 
 ## Repository guide
 

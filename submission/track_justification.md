@@ -53,11 +53,13 @@ is not re-alerted.
 
 `[BLOCKED: HUMAN ACTION REQUIRED]`
 
-The local pipeline and replay are working, but a manual run is not enough for
-Track 2. Before submission, the owner must capture at least three genuine
-GitHub Actions runs whose event is `schedule`, along with run logs, artifacts,
-timestamps, state restoration, and notification results. Those real entries
-belong in `evidence/unattended-runs.md` and must appear in the judging video.
+The local pipeline, public CI, artifact upload, and cross-run cache restore are
+working. Two public fixture dispatches demonstrate hosted engineering behavior,
+but a manual run is not enough for Track 2. Before submission, the owner must
+capture at least three genuine GitHub Actions runs whose event is `schedule`,
+along with run logs, artifacts, timestamps, state restoration, and notification
+results. Those real entries belong in `evidence/unattended-runs.md` and must
+appear in the judging video.
 
 ## Scope and Safety
 

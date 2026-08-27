@@ -104,6 +104,32 @@ The first replay used dry-notify and wrote a payload preview. The second found
 no new evidence, so the notifiable set was empty. This proves stateful replay
 suppression without claiming a webhook delivery or a scheduled trigger.
 
+## Non-Qualifying Public Hosted-Runner QA
+
+These public GitHub Actions executions validate the production-shaped runner,
+wheel installation, artifact upload, and state cache. Their event is
+`workflow_dispatch`, so they are deliberately excluded from the three Track 2
+qualification slots above.
+
+| Field | Hosted run 1 | Identical hosted run 2 |
+|---|---|---|
+| Public workflow run | [`33036266340`](https://github.com/respramon/marketops-id/actions/runs/33036266340) | [`33036310666`](https://github.com/respramon/marketops-id/actions/runs/33036310666) |
+| GitHub event / pipeline trigger | `workflow_dispatch` / `manual` | `workflow_dispatch` / `manual` |
+| Mode / notify policy | `fixture` / dry preview | `fixture` / dry preview |
+| Pipeline run ID | `run-20260827-102440-9b320b` | `run-20260827-102530-6eca07` |
+| Started (WIB) | `2026-08-27T10:24:40+07:00` | `2026-08-27T10:25:30+07:00` |
+| Status | `OK` | `OK` |
+| Events / new / duplicates | 16 / 16 / 0 | 16 / 0 / 16 |
+| Dry previews / actual deliveries | 5 / 0 | 0 / 0 |
+| Estimated-equivalent credits | 15 | 15 |
+| State evidence | Saved key ending `33036266340-1` | Restored the key ending `33036266340-1`, then saved a new key |
+| Artifact | `marketops-manual-fixture-33036266340-1` | `marketops-manual-fixture-33036310666-1` |
+
+The second artifact's `run-history.json` contains both pipeline runs in order.
+This proves SQLite state survived a hosted-runner restart and that the duplicate
+policy suppresses the full notifiable set. It does **not** prove schedule
+triggering, live Sectors authentication, or webhook delivery.
+
 ## One Required Human Action
 
 Add `SECTORS_API_KEY` and one webhook secret to the repository's GitHub Actions
