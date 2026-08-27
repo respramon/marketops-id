@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+{% include "_queue.html" %}
+
+{% if runs %}
+<section class="band" aria-labelledby="run-history">
+  <div class="band-head">
+    <h2 id="run-history">Unattended run history</h2>
+    <span class="band-count">{{ runs|length }} recorded run{{ '' if runs|length == 1 else 's' }}</span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Run ID</th>
+          <th>Trigger</th>
+          <th>Mode</th>
+          <th>Status</th>
+          <th>Started (WIB)</th>
+          <th class="mono">Events</th>
+          <th class="mono">New</th>
+          <th class="mono">Dupes</th>
+          <th class="mono">Sent</th>
+          <th class="mono">Credits</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in runs %}
+        <tr>
+          <td class="mono">{{ r.run_id }}</td>
+          <td class="mono">{{ r.trigger }}</td>
+          <td class="mono">{{ r.mode }}</td>
+          <td><span class="state {{ 'ok' if r.status == 'OK' else ('failed' if r.status == 'FAILED' else 'budget_exhausted') }}">{{ r.status }}</span></td>
+          <td class="mono">{{ r.started_at[:19].replace('T', ' ') }}</td>
+          <td class="mono">{{ r.events_detected }}</td>
+          <td class="mono">{{ r.new_events }}</td>
+          <td class="mono">{{ r.duplicate_events_suppressed }}</td>
+          <td class="mono">{{ r.notifications_sent }}</td>
+          <td class="mono">{{ r.estimated_api_credits }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

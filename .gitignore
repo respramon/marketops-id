@@ -1,0 +1,36 @@
+# Secrets - never commit
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+secrets.json
+
+# State & run artifacts
+data/*.db
+data/*.db-journal
+artifacts/
+*.log
+.playwright-cli/
+output/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+build/
+dist/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

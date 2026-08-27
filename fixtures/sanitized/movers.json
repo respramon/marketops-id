@@ -1,0 +1,50 @@
+{
+  "_meta": {
+    "label": "SANITIZED HISTORICAL REPLAY - NOT LIVE MARKET DATA",
+    "as_of": "2026-08-25",
+    "note": "Shapes verified against https://docs.sectors.app/schema.json (OpenAPI 3.0.3, Sectors API v2.0.0). Tickers are real IDX symbols; all figures are synthetic and exist only to exercise deterministic scoring paths. INDF and ASII sit below every threshold on purpose."
+  },
+  "top_gainers": {
+    "1d": [
+      {
+        "name": "PT Aneka Tambang Tbk",
+        "symbol": "ANTM.JK",
+        "price_change": 0.0842,
+        "last_close_price": 3010,
+        "latest_close_date": "2026-08-25"
+      },
+      {
+        "name": "PT Bank Central Asia Tbk",
+        "symbol": "BBCA.JK",
+        "price_change": 0.034,
+        "last_close_price": 9425,
+        "latest_close_date": "2026-08-25"
+      },
+      {
+        "name": "PT Indofood Sukses Makmur Tbk",
+        "symbol": "INDF.JK",
+        "price_change": 0.0182,
+        "last_close_price": 7950,
+        "latest_close_date": "2026-08-25"
+      }
+    ]
+  },
+  "top_losers": {
+    "1d": [
+      {
+        "name": "PT Merdeka Copper Gold Tbk",
+        "symbol": "MDKA.JK",
+        "price_change": -0.0761,
+        "last_close_price": 1815,
+        "latest_close_date": "2026-08-25"
+      },
+      {
+        "name": "PT Astra International Tbk",
+        "symbol": "ASII.JK",
+        "price_change": -0.0114,
+        "last_close_price": 5200,
+        "latest_close_date": "2026-08-25"
+      }
+    ]
+  }
+}

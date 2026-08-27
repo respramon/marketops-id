@@ -1,0 +1,104 @@
+# ===========================================================================
+# MarketOps ID - Research Attention Score configuration
+# ===========================================================================
+# This file is the ONLY place scoring behaviour is defined. The engine reads
+# it at runtime; there is no hard-coded weight anywhere in the source.
+#
+# WHAT THIS IS
+#   A triage heuristic that decides the ORDER in which a human analyst reviews
+#   tickers today. Higher score == "look at this first".
+#
+# WHAT THIS IS NOT
+#   Not an investment score. Not a valuation model. Not a predictor of return.
+#   These weights are hackathon product heuristics chosen for explainability,
+#   not scientifically validated investment factors. Every number below is
+#   deliberately a round, human-auditable value that an analyst can re-tune.
+#
+# Field names referenced below map 1:1 onto Sectors API v2 response fields.
+# ===========================================================================
+
+priority:
+  # Score thresholds. A dossier scoring >= p1_min is P1, and so on.
+  p1_min: 75
+  p2_min: 50
+  p3_min: 25
+
+weights:
+  # -- IDX trading suspension -------------------------------------------
+  # Source: GET /v2/suspensions/
+  # A halted stock is categorically different from a scored one: the analyst
+  # cannot act on it at all until it reopens, and the reason (reason field)
+  # is always material. This is an OVERRIDE, not an additive weight: any
+  # suspension immediately pins the dossier to the maximum and forces P1.
+  suspension:
+    override_score: 100
+
+  # -- Insider / major-shareholder filing --------------------------------
+  # Source: GET /v2/filings/
+  filing:
+    base: 25
+    # share_percentage_transaction >= 0.5 (percent of company transacted)
+    ownership_change_ge_0_5_pct: 10
+    # transaction_value >= 25_000_000_000 IDR (25 billion)
+    transaction_value_ge_25b_idr: 10
+
+  # -- One-day price movement --------------------------------------------
+  # Source: GET /v2/companies/top-changes/ (price_change is a DECIMAL:
+  # 0.03 == +3%). Tiers are exclusive - the largest matching tier wins,
+  # they do not stack.
+  price_move:
+    abs_change_ge_3_pct: 10
+    abs_change_ge_7_pct: 20
+
+  # -- Foreign-flow anomaly ----------------------------------------------
+  # Source: GET /v2/foreign-flow/{symbol}/
+  # ratio = |latest day net flow| / mean(|net flow| over the prior baseline
+  # window). Tiers are exclusive.
+  foreign_flow:
+    anomaly_ratio_ge_2x: 15
+    anomaly_ratio_ge_4x: 20
+
+  # -- Relevant news ------------------------------------------------------
+  # Source: GET /v2/news/?symbols=...
+  relevant_news:
+    present: 10
+
+  # -- Upcoming corporate action -----------------------------------------
+  # Source: GET /v2/company/corporate-actions/{symbol}/
+  # Counts upcoming_dividend ex_date and agm_date falling inside the window.
+  corporate_action:
+    upcoming_within_7_days: 10
+
+limits:
+  maximum_score: 100
+
+thresholds:
+  # Numeric constants the weights above refer to. Kept separate so the
+  # weight block stays readable and both are tunable without code changes.
+  ownership_change_pct: 0.5
+  transaction_value_idr: 25000000000
+  price_move_small_pct: 3.0
+  price_move_large_pct: 7.0
+  foreign_flow_ratio_small: 2.0
+  foreign_flow_ratio_large: 4.0
+  corporate_action_window_days: 7
+  # Minimum trading days of foreign-flow history required before an anomaly
+  # ratio is considered meaningful. Below this, foreign flow scores 0.
+  foreign_flow_min_baseline_days: 3
+
+candidate_selection:
+  # A ticker enters the candidate universe if it has at least one discovery
+  # event. These decide the ORDER in which candidates are enriched, so that
+  # the API-credit budget is spent on the most promising tickers first.
+  preliminary_weights:
+    # Presence-based
+    suspension: 100
+    filing: 40
+    price_move: 20
+    # Magnitude-based: added on top when the evidence is unusually strong, so
+    # a ticker that moved 8% is enriched before one that moved 1%.
+    large_price_move: 15
+    large_filing_value: 10
+  # Tickers whose score is already pinned by a suspension override skip
+  # paid enrichment entirely - no amount of enrichment can change a 100.
+  skip_enrichment_when_score_pinned: true

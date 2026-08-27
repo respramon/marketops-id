@@ -1,0 +1,257 @@
+{
+  "_meta": {
+    "label": "SANITIZED HISTORICAL REPLAY - NOT LIVE MARKET DATA",
+    "as_of": "2026-08-25",
+    "note": "Shapes verified against https://docs.sectors.app/schema.json (OpenAPI 3.0.3, Sectors API v2.0.0). Tickers are real IDX symbols; all figures are synthetic and exist only to exercise deterministic scoring paths. Keyed by bare ticker. MDKA is the only genuine anomaly."
+  },
+  "ANTM": {
+    "symbol": "ANTM.JK",
+    "start": "2026-08-12",
+    "end": "2026-08-25",
+    "data": [
+      {
+        "date": "2026-08-12",
+        "net_foreign_inflow": 11200000000
+      },
+      {
+        "date": "2026-08-13",
+        "net_foreign_inflow": -9800000000
+      },
+      {
+        "date": "2026-08-14",
+        "net_foreign_inflow": 10400000000
+      },
+      {
+        "date": "2026-08-17",
+        "net_foreign_inflow": -11900000000
+      },
+      {
+        "date": "2026-08-18",
+        "net_foreign_inflow": 12100000000
+      },
+      {
+        "date": "2026-08-19",
+        "net_foreign_inflow": -10600000000
+      },
+      {
+        "date": "2026-08-20",
+        "net_foreign_inflow": 11500000000
+      },
+      {
+        "date": "2026-08-21",
+        "net_foreign_inflow": -9400000000
+      },
+      {
+        "date": "2026-08-24",
+        "net_foreign_inflow": 10900000000
+      },
+      {
+        "date": "2026-08-25",
+        "net_foreign_inflow": 11050000000
+      }
+    ]
+  },
+  "MDKA": {
+    "symbol": "MDKA.JK",
+    "start": "2026-08-12",
+    "end": "2026-08-25",
+    "data": [
+      {
+        "date": "2026-08-12",
+        "net_foreign_inflow": 2050000000
+      },
+      {
+        "date": "2026-08-13",
+        "net_foreign_inflow": -1900000000
+      },
+      {
+        "date": "2026-08-14",
+        "net_foreign_inflow": 2200000000
+      },
+      {
+        "date": "2026-08-17",
+        "net_foreign_inflow": -1750000000
+      },
+      {
+        "date": "2026-08-18",
+        "net_foreign_inflow": 2400000000
+      },
+      {
+        "date": "2026-08-19",
+        "net_foreign_inflow": -2100000000
+      },
+      {
+        "date": "2026-08-20",
+        "net_foreign_inflow": 1850000000
+      },
+      {
+        "date": "2026-08-21",
+        "net_foreign_inflow": -2250000000
+      },
+      {
+        "date": "2026-08-24",
+        "net_foreign_inflow": 2000000000
+      },
+      {
+        "date": "2026-08-25",
+        "net_foreign_inflow": -9650000000
+      }
+    ]
+  },
+  "ADRO": {
+    "symbol": "ADRO.JK",
+    "start": "2026-08-12",
+    "end": "2026-08-25",
+    "data": [
+      {
+        "date": "2026-08-12",
+        "net_foreign_inflow": 3100000000
+      },
+      {
+        "date": "2026-08-13",
+        "net_foreign_inflow": -2900000000
+      },
+      {
+        "date": "2026-08-14",
+        "net_foreign_inflow": 3050000000
+      },
+      {
+        "date": "2026-08-17",
+        "net_foreign_inflow": -3200000000
+      },
+      {
+        "date": "2026-08-18",
+        "net_foreign_inflow": 2980000000
+      },
+      {
+        "date": "2026-08-19",
+        "net_foreign_inflow": -3150000000
+      },
+      {
+        "date": "2026-08-20",
+        "net_foreign_inflow": 3020000000
+      },
+      {
+        "date": "2026-08-21",
+        "net_foreign_inflow": -2870000000
+      },
+      {
+        "date": "2026-08-24",
+        "net_foreign_inflow": 3090000000
+      },
+      {
+        "date": "2026-08-25",
+        "net_foreign_inflow": 3180000000
+      }
+    ]
+  },
+  "BBCA": {
+    "symbol": "BBCA.JK",
+    "start": "2026-08-12",
+    "end": "2026-08-25",
+    "data": [
+      {
+        "date": "2026-08-12",
+        "net_foreign_inflow": 52000000000
+      },
+      {
+        "date": "2026-08-13",
+        "net_foreign_inflow": -48000000000
+      },
+      {
+        "date": "2026-08-14",
+        "net_foreign_inflow": 51500000000
+      },
+      {
+        "date": "2026-08-17",
+        "net_foreign_inflow": -49800000000
+      },
+      {
+        "date": "2026-08-18",
+        "net_foreign_inflow": 53100000000
+      },
+      {
+        "date": "2026-08-19",
+        "net_foreign_inflow": -47600000000
+      },
+      {
+        "date": "2026-08-20",
+        "net_foreign_inflow": 50900000000
+      },
+      {
+        "date": "2026-08-21",
+        "net_foreign_inflow": -52400000000
+      },
+      {
+        "date": "2026-08-24",
+        "net_foreign_inflow": 49700000000
+      },
+      {
+        "date": "2026-08-25",
+        "net_foreign_inflow": 41200000000
+      }
+    ]
+  },
+  "ASII": {
+    "symbol": "ASII.JK",
+    "start": "2026-08-12",
+    "end": "2026-08-25",
+    "data": [
+      {
+        "date": "2026-08-12",
+        "net_foreign_inflow": 7400000000
+      },
+      {
+        "date": "2026-08-13",
+        "net_foreign_inflow": -7100000000
+      },
+      {
+        "date": "2026-08-14",
+        "net_foreign_inflow": 7250000000
+      },
+      {
+        "date": "2026-08-17",
+        "net_foreign_inflow": -7600000000
+      },
+      {
+        "date": "2026-08-18",
+        "net_foreign_inflow": 7050000000
+      },
+      {
+        "date": "2026-08-19",
+        "net_foreign_inflow": -7350000000
+      },
+      {
+        "date": "2026-08-20",
+        "net_foreign_inflow": 7180000000
+      },
+      {
+        "date": "2026-08-21",
+        "net_foreign_inflow": -6980000000
+      },
+      {
+        "date": "2026-08-24",
+        "net_foreign_inflow": 7310000000
+      },
+      {
+        "date": "2026-08-25",
+        "net_foreign_inflow": 7120000000
+      }
+    ]
+  },
+  "INDF": {
+    "symbol": "INDF.JK",
+    "start": "2026-08-24",
+    "end": "2026-08-25",
+    "data": [
+      {
+        "date": "2026-08-24",
+        "net_foreign_inflow": 1400000000
+      },
+      {
+        "date": "2026-08-25",
+        "net_foreign_inflow": -8900000000
+      }
+    ]
+  }
+}

@@ -1,0 +1,23 @@
+1
+00:00:00,000 --> 00:00:07,000
+An IDX research morning can mean checking filings, suspensions, movers, news, foreign flow, and corporate actions one by one.
+
+2
+00:00:07,000 --> 00:00:14,000
+MarketOps ID turns those disconnected signals into one research queue.
+
+3
+00:00:14,000 --> 00:00:24,000
+It uses Sectors Financial API v2 for discovery, then selectively enriches the strongest tickers with related evidence.
+
+4
+00:00:24,000 --> 00:00:36,000
+Evidence is correlated by ticker and ranked with an explainable Research Attention Score. A high score means review first - never buy or sell.
+
+5
+00:00:36,000 --> 00:00:46,000
+Persistent event fingerprints suppress repeats. In the verified sanitized replay, the first run found 16 new events; the identical second run suppressed all 16.
+
+6
+00:00:46,000 --> 00:00:57,000
+A GitHub Actions weekday schedule is configured for the live workflow. Live API, webhook, and genuine scheduled-run evidence are pending account setup.

@@ -1,0 +1,111 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Quality gates (Python 3.12)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install project and development dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Ruff
+        id: ruff
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          ruff check . 2>&1 | tee ruff-report.txt
+
+      - name: mypy
+        id: mypy
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          mypy src 2>&1 | tee mypy-report.txt
+
+      - name: pytest with coverage
+        id: pytest
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          pytest \
+            --cov=marketops \
+            --cov-report=term-missing \
+            --cov-report=xml:coverage.xml \
+            --cov-report=html:htmlcov \
+            --cov-fail-under=80 \
+            2>&1 | tee test-report.txt
+
+      - name: Write CI summary
+        if: always()
+        env:
+          RUFF_RESULT: ${{ steps.ruff.outcome }}
+          MYPY_RESULT: ${{ steps.mypy.outcome }}
+          PYTEST_RESULT: ${{ steps.pytest.outcome }}
+        run: |
+          {
+            echo "## MarketOps ID quality gates"
+            echo
+            echo "| Gate | Result |"
+            echo "| --- | --- |"
+            echo "| Ruff | ${RUFF_RESULT} |"
+            echo "| mypy | ${MYPY_RESULT} |"
+            echo "| pytest + coverage >=80% | ${PYTEST_RESULT} |"
+            echo
+            echo "Coverage details are attached to this workflow run."
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+      - name: Upload quality reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-reports-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ruff-report.txt
+            mypy-report.txt
+            test-report.txt
+            coverage.xml
+            htmlcov/
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Enforce quality gates
+        if: always()
+        env:
+          RUFF_RESULT: ${{ steps.ruff.outcome }}
+          MYPY_RESULT: ${{ steps.mypy.outcome }}
+          PYTEST_RESULT: ${{ steps.pytest.outcome }}
+        run: |
+          if [[ "${RUFF_RESULT}" != "success" || \
+                "${MYPY_RESULT}" != "success" || \
+                "${PYTEST_RESULT}" != "success" ]]; then
+            echo "One or more required quality gates failed."
+            exit 1
+          fi

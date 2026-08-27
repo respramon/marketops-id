@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Pending scheduled run evidence</title>
+  <desc id="desc">An explicit placeholder stating no genuine live scheduled run detail has been captured.</desc>
+  <rect width="1600" height="900" fill="#0a0d13"/>
+  <rect x="72" y="72" width="1456" height="756" rx="22" fill="#16130d" stroke="#f5a623" stroke-width="3"/>
+  <text x="132" y="164" fill="#f5a623" font-family="Arial,sans-serif" font-size="23" font-weight="700" letter-spacing="4">EVIDENCE PENDING - NOT A SCHEDULED-RUN DETAIL</text>
+  <text x="132" y="265" fill="#e6eaf2" font-family="Arial,sans-serif" font-size="57" font-weight="700">Scheduled live run capture required</text>
+  <text x="132" y="326" fill="#9aa5b8" font-family="Arial,sans-serif" font-size="28">The local fixture run is manual and must never be substituted for `schedule` evidence.</text>
+  <line x1="132" y1="402" x2="1468" y2="402" stroke="#473718" stroke-width="2"/>
+  <text x="132" y="477" fill="#e6eaf2" font-family="Arial,sans-serif" font-size="30" font-weight="700">Replace before submission with one real workflow detail page showing:</text>
+  <text x="158" y="536" fill="#c9d2e2" font-family="Arial,sans-serif" font-size="27">- event: `schedule`, mode: `live`, and actual started/finished timestamps;</text>
+  <text x="158" y="587" fill="#c9d2e2" font-family="Arial,sans-serif" font-size="27">- source-health, credit, and notification outcomes from the uploaded artifact;</text>
+  <text x="158" y="638" fill="#c9d2e2" font-family="Arial,sans-serif" font-size="27">- the same immutable run ID copied into the evidence pack.</text>
+  <rect x="132" y="702" width="1336" height="72" rx="12" fill="#281d0b" stroke="#6e511d"/>
+  <text x="166" y="748" fill="#ffd898" font-family="Arial,sans-serif" font-size="25">No Sectors key or GitHub Actions schedule result is embedded in this image.</text>
+</svg>

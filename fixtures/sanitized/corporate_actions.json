@@ -1,0 +1,126 @@
+{
+  "_meta": {
+    "label": "SANITIZED HISTORICAL REPLAY - NOT LIVE MARKET DATA",
+    "as_of": "2026-08-25",
+    "note": "Shapes verified against https://docs.sectors.app/schema.json (OpenAPI 3.0.3, Sectors API v2.0.0). Tickers are real IDX symbols; all figures are synthetic and exist only to exercise deterministic scoring paths. Only BBCA has an action inside the 7-day window."
+  },
+  "BBCA": {
+    "symbol": "BBCA.JK",
+    "corporate_actions": {
+      "agm": [],
+      "bonus": null,
+      "warrant": null,
+      "dividend": [
+        {
+          "ex_date": "2025-12-03",
+          "payment_date": "2025-12-22",
+          "dividend_yield": 0.00641717,
+          "dividend_amount": 55
+        }
+      ],
+      "right_issue": null,
+      "stock_split": [
+        {
+          "date": "2021-10-13",
+          "split_ratio": 5
+        }
+      ],
+      "upcoming_dividend": [
+        {
+          "ex_date": "2026-08-29",
+          "payment_date": "2026-09-19",
+          "dividend_yield": 0.0121,
+          "dividend_amount": 114
+        }
+      ]
+    }
+  },
+  "ANTM": {
+    "symbol": "ANTM.JK",
+    "corporate_actions": {
+      "agm": [
+        {
+          "agm_date": "2026-05-14",
+          "agm_time": "14:00:00",
+          "agm_place": "Jakarta",
+          "agm_result": null
+        }
+      ],
+      "bonus": null,
+      "warrant": null,
+      "dividend": [
+        {
+          "ex_date": "2026-06-11",
+          "payment_date": "2026-07-02",
+          "dividend_yield": 0.0289,
+          "dividend_amount": 84
+        }
+      ],
+      "right_issue": null,
+      "stock_split": null,
+      "upcoming_dividend": null
+    }
+  },
+  "MDKA": {
+    "symbol": "MDKA.JK",
+    "corporate_actions": {
+      "agm": [],
+      "bonus": null,
+      "warrant": null,
+      "dividend": [],
+      "right_issue": null,
+      "stock_split": null,
+      "upcoming_dividend": null
+    }
+  },
+  "ADRO": {
+    "symbol": "ADRO.JK",
+    "corporate_actions": {
+      "agm": [],
+      "bonus": null,
+      "warrant": null,
+      "dividend": [
+        {
+          "ex_date": "2026-04-08",
+          "payment_date": "2026-04-29",
+          "dividend_yield": 0.0912,
+          "dividend_amount": 196
+        }
+      ],
+      "right_issue": null,
+      "stock_split": null,
+      "upcoming_dividend": null
+    }
+  },
+  "INDF": {
+    "symbol": "INDF.JK",
+    "corporate_actions": {
+      "agm": [],
+      "bonus": null,
+      "warrant": null,
+      "dividend": [],
+      "right_issue": null,
+      "stock_split": null,
+      "upcoming_dividend": null
+    }
+  },
+  "ASII": {
+    "symbol": "ASII.JK",
+    "corporate_actions": {
+      "agm": [],
+      "bonus": null,
+      "warrant": null,
+      "dividend": [
+        {
+          "ex_date": "2026-05-20",
+          "payment_date": "2026-06-10",
+          "dividend_yield": 0.0642,
+          "dividend_amount": 334
+        }
+      ],
+      "right_issue": null,
+      "stock_split": null,
+      "upcoming_dividend": null
+    }
+  }
+}

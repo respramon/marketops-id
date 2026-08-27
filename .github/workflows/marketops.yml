@@ -1,0 +1,254 @@
+name: MarketOps scheduled triage
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Data source for a manual run
+        required: true
+        default: fixture
+        type: choice
+        options:
+          - fixture
+          - live
+      dry_notify:
+        description: Render notification payloads without sending them
+        required: true
+        default: true
+        type: boolean
+  schedule:
+    # Asia/Jakarta is UTC+7 year-round: 00:17 UTC = 07:17 WIB.
+    - cron: "17 0 * * 1-5"
+
+permissions:
+  contents: read
+
+concurrency:
+  # Serialize all state mutations on a branch. A queued run must not restore
+  # stale SQLite state while another invocation is still writing it.
+  group: marketops-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  PYTHONUNBUFFERED: "1"
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  MARKETOPS_ARTIFACT_DIR: artifacts
+  MARKETOPS_MAX_API_CREDITS_PER_RUN: ${{ vars.MARKETOPS_MAX_API_CREDITS_PER_RUN || '15' }}
+  MARKETOPS_MAX_ENRICH_TICKERS: ${{ vars.MARKETOPS_MAX_ENRICH_TICKERS || '5' }}
+
+jobs:
+  triage:
+    name: Autonomous research triage
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Resolve execution policy
+        id: policy
+        env:
+          MANUAL_MODE: ${{ inputs.mode || 'fixture' }}
+          MANUAL_DRY_NOTIFY: ${{ inputs.dry_notify }}
+        run: |
+          if [[ "${GITHUB_EVENT_NAME}" == "schedule" ]]; then
+            mode="live"
+            dry_notify="false"
+            trigger="schedule"
+            state_scope="production"
+          else
+            mode="${MANUAL_MODE}"
+            dry_notify="${MANUAL_DRY_NOTIFY:-true}"
+            trigger="manual"
+
+            # Dry live runs and fixture replays must not consume production
+            # deduplication state. A manual live delivery shares production
+            # state so an emergency run cannot duplicate the next schedule.
+            if [[ "${mode}" == "live" && "${dry_notify}" == "false" ]]; then
+              state_scope="production"
+            elif [[ "${mode}" == "live" ]]; then
+              state_scope="dry-live"
+            else
+              state_scope="fixture"
+            fi
+          fi
+
+          case "${mode}" in
+            fixture|live) ;;
+            *) echo "Unsupported mode" >&2; exit 2 ;;
+          esac
+          case "${dry_notify}" in
+            true|false) ;;
+            *) echo "Invalid dry-notify policy" >&2; exit 2 ;;
+          esac
+
+          {
+            echo "mode=${mode}"
+            echo "dry_notify=${dry_notify}"
+            echo "trigger=${trigger}"
+            echo "state_scope=${state_scope}"
+          } >> "${GITHUB_OUTPUT}"
+
+      - name: Initialize evidence log
+        env:
+          RUN_MODE: ${{ steps.policy.outputs.mode }}
+          DRY_NOTIFY: ${{ steps.policy.outputs.dry_notify }}
+          TRIGGER_KIND: ${{ steps.policy.outputs.trigger }}
+          STATE_SCOPE: ${{ steps.policy.outputs.state_scope }}
+        run: |
+          mkdir -p "${MARKETOPS_ARTIFACT_DIR}"
+          {
+            echo "workflow.event=${GITHUB_EVENT_NAME}"
+            echo "workflow.trigger=${TRIGGER_KIND}"
+            echo "workflow.mode=${RUN_MODE}"
+            echo "workflow.dry_notify=${DRY_NOTIFY}"
+            echo "workflow.state_scope=${STATE_SCOPE}"
+          } > "${MARKETOPS_ARTIFACT_DIR}/workflow.log"
+
+      - name: Restore persistent deduplication state
+        id: state-restore
+        uses: actions/cache/restore@v4
+        with:
+          path: data/${{ steps.policy.outputs.state_scope }}
+          key: >-
+            marketops-state-v1-${{ runner.os }}-${{ github.ref_name }}-${{
+            steps.policy.outputs.state_scope }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            marketops-state-v1-${{ runner.os }}-${{ github.ref_name }}-${{ steps.policy.outputs.state_scope }}-
+
+      - name: Prepare runtime directories
+        env:
+          STATE_SCOPE: ${{ steps.policy.outputs.state_scope }}
+          STATE_CACHE_KEY: ${{ steps.state-restore.outputs.cache-matched-key }}
+        run: |
+          mkdir -p "data/${STATE_SCOPE}" "${MARKETOPS_ARTIFACT_DIR}"
+          touch "${MARKETOPS_ARTIFACT_DIR}/workflow.log"
+          echo "workflow.state_restore=${STATE_CACHE_KEY:-cold-start}" >> "${MARKETOPS_ARTIFACT_DIR}/workflow.log"
+          echo "MARKETOPS_DB_PATH=data/${STATE_SCOPE}/marketops.db" >> "${GITHUB_ENV}"
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install MarketOps ID
+        run: |
+          set -o pipefail
+          {
+            python -m pip install --upgrade pip &&
+            python -m pip install .
+          } 2>&1 | tee -a "${MARKETOPS_ARTIFACT_DIR}/workflow.log"
+
+      - name: Validate required secrets
+        env:
+          RUN_MODE: ${{ steps.policy.outputs.mode }}
+          DRY_NOTIFY: ${{ steps.policy.outputs.dry_notify }}
+          SECTORS_API_KEY: ${{ secrets.SECTORS_API_KEY }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          GENERIC_WEBHOOK_URL: ${{ secrets.GENERIC_WEBHOOK_URL }}
+        run: |
+          if [[ "${RUN_MODE}" == "live" && -z "${SECTORS_API_KEY:-}" ]]; then
+            echo "SECTORS_API_KEY is required for a live run." | tee -a "${MARKETOPS_ARTIFACT_DIR}/workflow.log"
+            exit 2
+          fi
+
+          if [[ "${DRY_NOTIFY}" == "false" && \
+                -z "${DISCORD_WEBHOOK_URL:-}" && \
+                -z "${GENERIC_WEBHOOK_URL:-}" ]]; then
+            echo "WARNING: no webhook secret configured; pipeline will run fail-soft and record a PARTIAL delivery outcome." | tee -a "${MARKETOPS_ARTIFACT_DIR}/workflow.log"
+          fi
+
+      - name: Run autonomous triage pipeline
+        id: pipeline
+        env:
+          RUN_MODE: ${{ steps.policy.outputs.mode }}
+          DRY_NOTIFY: ${{ steps.policy.outputs.dry_notify }}
+          TRIGGER_KIND: ${{ steps.policy.outputs.trigger }}
+          SECTORS_API_KEY: ${{ secrets.SECTORS_API_KEY }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          GENERIC_WEBHOOK_URL: ${{ secrets.GENERIC_WEBHOOK_URL }}
+        run: |
+          set -o pipefail
+          args=(
+            marketops run
+            --mode "${RUN_MODE}"
+            --trigger "${TRIGGER_KIND}"
+            --artifact-dir "${MARKETOPS_ARTIFACT_DIR}"
+            --json-logs
+          )
+          if [[ "${DRY_NOTIFY}" == "true" ]]; then
+            args+=(--dry-notify)
+          fi
+          "${args[@]}" 2>&1 | tee -a "${MARKETOPS_ARTIFACT_DIR}/workflow.log"
+
+      - name: Verify run evidence
+        run: |
+          test -s "${MARKETOPS_ARTIFACT_DIR}/latest.json"
+          test -s "${MARKETOPS_ARTIFACT_DIR}/latest.html"
+          test -s "${MARKETOPS_ARTIFACT_DIR}/run-history.json"
+          compgen -G "${MARKETOPS_ARTIFACT_DIR}/*-summary.md" > /dev/null
+          python -m json.tool "${MARKETOPS_ARTIFACT_DIR}/latest.json" > /dev/null
+
+      - name: Save persistent deduplication state
+        if: ${{ always() && steps.pipeline.outcome != 'skipped' && hashFiles('data/**/*.db') != '' }}
+        uses: actions/cache/save@v4
+        with:
+          path: data/${{ steps.policy.outputs.state_scope }}
+          key: >-
+            marketops-state-v1-${{ runner.os }}-${{ github.ref_name }}-${{
+            steps.policy.outputs.state_scope }}-${{ github.run_id }}-${{ github.run_attempt }}
+
+      - name: Write workflow run summary
+        if: always()
+        env:
+          RUN_MODE: ${{ steps.policy.outputs.mode }}
+          TRIGGER_KIND: ${{ steps.policy.outputs.trigger }}
+          STATE_SCOPE: ${{ steps.policy.outputs.state_scope }}
+          ARTIFACT_NAME: >-
+            marketops-${{ steps.policy.outputs.trigger }}-${{ steps.policy.outputs.mode }}-${{
+            github.run_id }}-${{ github.run_attempt }}
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+
+          artifact_dir = Path("artifacts")
+          summary_path = Path(os.environ["GITHUB_STEP_SUMMARY"])
+          lines = [
+              "## MarketOps ID unattended run",
+              "",
+              f"- Trigger: `{os.environ.get('TRIGGER_KIND', 'unknown')}`",
+              f"- Mode: `{os.environ.get('RUN_MODE', 'unknown')}`",
+              f"- State scope: `{os.environ.get('STATE_SCOPE', 'unknown')}`",
+              f"- Artifact: `{os.environ.get('ARTIFACT_NAME', 'marketops-run')}`",
+              "",
+          ]
+
+          summaries = list(artifact_dir.glob("*-summary.md"))
+          if summaries:
+              latest = max(summaries, key=lambda path: path.stat().st_mtime_ns)
+              lines.append(latest.read_text(encoding="utf-8"))
+          else:
+              lines.append(
+                  "No run metadata was produced. Inspect `workflow.log` in the uploaded artifact."
+              )
+
+          with summary_path.open("a", encoding="utf-8") as handle:
+              handle.write("\n".join(lines) + "\n")
+          PY
+
+      - name: Upload run evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: >-
+            marketops-${{ steps.policy.outputs.trigger }}-${{ steps.policy.outputs.mode }}-${{
+            github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/
+          if-no-files-found: error
+          retention-days: 30

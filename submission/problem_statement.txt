@@ -1,0 +1,1 @@
+MarketOps ID helps Indonesian equity research analysts automatically discover and connect important IDX market events through Sectors, then prioritize what deserves human review without producing investment recommendations.

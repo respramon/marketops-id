@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="band">
+  <div class="empty" style="margin-top:2rem">
+    <strong>No run recorded yet</strong>
+    MarketOps has not completed a pipeline run against this state database.<br><br>
+    Run <code>marketops run --mode fixture</code> to produce a deterministic demo run,
+    or wait for the scheduled GitHub Actions workflow to fire.
+  </div>
+</section>
+{% endblock %}

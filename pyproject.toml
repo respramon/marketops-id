@@ -1,0 +1,90 @@
+[build-system]
+requires = ["hatchling>=1.26,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "marketops-id"
+version = "1.0.0"
+description = "Autonomous IDX research triage. Monitors Sectors market events, correlates evidence per ticker, and delivers a prioritized research queue without human intervention."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [{ name = "MarketOps ID" }]
+keywords = ["idx", "sectors", "equity-research", "automation", "triage"]
+
+dependencies = [
+    "httpx==0.28.1",
+    "pydantic==2.13.4",
+    "pydantic-settings==2.15.0",
+    "tenacity==9.1.4",
+    "typer==0.27.1",
+    "fastapi==0.141.1",
+    "uvicorn==0.52.4",
+    "jinja2==3.1.6",
+    "pyyaml==6.0.3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==9.1.1",
+    "pytest-cov==7.1.0",
+    "respx==0.23.1",
+    "ruff==0.16.4",
+    "mypy==2.3.1",
+    "types-PyYAML==6.0.12.20260815",
+]
+
+[project.scripts]
+marketops = "marketops.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/marketops"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+# S = flake8-bandit (security), SLF = private-member access,
+# DTZ = timezone-naive datetime. All three matter for a scheduled financial
+# job handling secrets and exchange timestamps.
+select = [
+    "E", "F", "W", "I", "N", "UP", "B", "C4", "SIM", "RUF", "ARG", "PTH",
+    "S", "SLF", "DTZ",
+]
+ignore = ["RUF012"]
+
+[tool.ruff.lint.per-file-ignores]
+# Tests legitimately use fixtures for their side effects, assert freely, and
+# reach into internals to prove persistence and provenance guarantees.
+"tests/**" = [
+    "ARG001", "ARG002", "S101", "S311", "SLF001", "S105", "S106", "DTZ001", "DTZ005",
+]
+# FixtureSource must mirror the live client's signature to satisfy the
+# MarketDataSource protocol, so it carries parameters it does not read.
+"src/marketops/sectors.py" = ["ARG002"]
+"scripts/**" = ["S101"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unreachable = true
+disallow_untyped_decorators = false
+plugins = []
+
+[[tool.mypy.overrides]]
+module = ["yaml", "respx"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = ["error::DeprecationWarning:marketops.*"]
+
+[tool.coverage.run]
+source = ["marketops"]
+
+[tool.coverage.report]
+fail_under = 80
+exclude_lines = ["pragma: no cover", "if TYPE_CHECKING:", "raise NotImplementedError"]

@@ -1,0 +1,29 @@
+# ===========================================================================
+# MarketOps ID - analyst watchlist
+# ===========================================================================
+# Optional. The pipeline is discovery-driven: it finds candidates from market
+# events, it does not need a watchlist to work. This file lets a research desk
+# express standing interest so their own coverage never falls below P3 even on
+# a quiet day.
+#
+# Symbols are written WITHOUT the .JK suffix; normalisation adds/strips it.
+# ===========================================================================
+
+# Tickers under active coverage. A watchlist ticker that produces any event is
+# given the bonus below, nudging it up the queue versus an equivalent
+# non-covered name.
+covered:
+  - BBCA
+  - BBRI
+  - BMRI
+  - TLKM
+  - ASII
+  - GOTO
+
+# Additive bonus applied once when a scored ticker is on the covered list.
+covered_bonus: 5
+
+# Tickers to suppress entirely - events are still logged to state and counted
+# in the run summary, but never notified or ranked. Use for names the desk has
+# formally dropped, or for known-noisy shells.
+muted: []

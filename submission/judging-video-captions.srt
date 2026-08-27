@@ -1,0 +1,39 @@
+1
+00:00:00,000 --> 00:00:14,000
+MarketOps ID helps Indonesian equity research analysts decide what to investigate first when important signals arrive through separate market-data views.
+
+2
+00:00:14,000 --> 00:00:28,000
+Sectors Financial API v2 is the core source: filings, suspensions, one-day movers, ticker news, foreign flow, and corporate actions create the research queue.
+
+3
+00:00:28,000 --> 00:00:43,000
+The production workflow is configured for weekdays at 07:17 WIB. It runs live mode, restores its SQLite state, produces artifacts, and saves the state for the next cycle.
+
+4
+00:00:43,000 --> 00:00:58,000
+For deterministic testing, this sanitized historical replay uses matching response shapes but zero live API credits. It is not live market data.
+
+5
+00:00:58,000 --> 00:01:17,000
+MarketOps correlates evidence by canonical ticker and applies a deterministic Research Attention Score. Every component and its source evidence are visible.
+
+6
+00:01:17,000 --> 00:01:34,000
+A suspension overrides the queue to P1. Other rules consider material filings, price moves, foreign-flow anomalies, news, corporate actions, and the desk watchlist.
+
+7
+00:01:34,000 --> 00:01:50,000
+The first verified replay detected 16 new events and rendered five dry-notify cards. The identical second replay suppressed all 16 duplicates. Dry preview is not external delivery.
+
+8
+00:01:50,000 --> 00:02:12,000
+Track 2 proof requires genuine GitHub Actions runs whose event is schedule, not a manual dispatch. This evidence is currently pending.
+
+9
+00:02:12,000 --> 00:02:31,000
+Before submission, three scheduled live runs must be recorded with their run IDs, timestamps, artifacts, source health, credit totals, restored state, and truthful delivery outcome.
+
+10
+00:02:31,000 --> 00:02:48,000
+MarketOps ID turns Sectors evidence into an unattended, auditable research queue while keeping a human in charge of any investment decision.

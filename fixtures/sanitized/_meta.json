@@ -1,0 +1,14 @@
+{
+  "label": "SANITIZED HISTORICAL REPLAY - NOT LIVE MARKET DATA",
+  "as_of": "2026-08-25",
+  "note": "Shapes verified against https://docs.sectors.app/schema.json (OpenAPI 3.0.3, Sectors API v2.0.0). Tickers are real IDX symbols; all figures are synthetic and exist only to exercise deterministic scoring paths.",
+  "scenarios": {
+    "FLMC": "IDX trading suspension -> score override to 100 (P1)",
+    "ANTM": "filing + large ownership + large value + >=7% move + news -> 75 (P1)",
+    "MDKA": ">=7% move + 4.7x foreign-flow anomaly + news -> 50 (P2)",
+    "ADRO": "filing + ownership threshold only -> 35 (P3)",
+    "BBCA": "3-7% move + upcoming dividend + watchlist bonus -> 25 (P3)",
+    "INDF": "below every threshold -> not queued",
+    "ASII": "below every threshold -> not queued"
+  }
+}

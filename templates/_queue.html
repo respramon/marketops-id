@@ -1,0 +1,174 @@
+{# ---------------------------------------------------------------------------
+   Shared research-queue markup. Included by both the served dashboard
+   (index.html) and the standalone run artifact (report.html) so the HTML a
+   judge downloads from a CI artifact is byte-for-byte the same view the
+   dashboard shows.
+   ------------------------------------------------------------------------ #}
+
+<section class="runstrip" aria-label="Last unattended run">
+  <div class="cell">
+    <span class="k">Last run</span>
+    <span class="v small">{{ report.started_at.strftime('%d %b %Y') }}<br>{{ report.started_at.strftime('%H:%M:%S') }} WIB</span>
+  </div>
+  <div class="cell">
+    <span class="k">Status</span>
+    <span class="v small"><span class="status-pill {{ status_class }}">{{ report.status.value }}</span></span>
+  </div>
+  <div class="cell">
+    <span class="k">Trigger</span>
+    <span class="v small">{{ report.trigger }}</span>
+  </div>
+  <div class="cell">
+    <span class="k">Events detected</span>
+    <span class="v">{{ report.events_detected }}</span>
+  </div>
+  <div class="cell">
+    <span class="k">New</span>
+    <span class="v">{{ report.new_events }}</span>
+  </div>
+  <div class="cell">
+    <span class="k">Duplicates suppressed</span>
+    <span class="v">{{ report.duplicate_events_suppressed }}</span>
+  </div>
+  <div class="cell">
+    <span class="k">Candidates</span>
+    <span class="v">{{ report.candidates }}</span>
+  </div>
+  <div class="cell">
+    <span class="k">Notifications sent</span>
+    <span class="v">{{ report.notifications_sent }}</span>
+  </div>
+  <div class="cell">
+    <span class="k">API credits</span>
+    <span class="v">{{ report.estimated_api_credits }}<span class="score-max"> / {{ report.credit_budget }}</span></span>
+  </div>
+  <div class="cell">
+    <span class="k">Run ID</span>
+    <span class="v small">{{ report.run_id }}</span>
+  </div>
+</section>
+
+{% if report.warnings %}
+<section class="warnings" role="status">
+  <h3>Run warnings &mdash; this is not an all-clear</h3>
+  <ul>
+    {% for warning in report.warnings %}
+    <li>{{ warning }}</li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+{% for band in bands %}
+<section class="band" aria-labelledby="band-{{ band.priority.value }}">
+  <div class="band-head">
+    <span class="band-tag {{ band.priority.value }}">{{ band.priority.value }}</span>
+    <h2 id="band-{{ band.priority.value }}">{{ band.label }}</h2>
+    <span class="band-count">{{ band.dossiers|length }} ticker{{ '' if band.dossiers|length == 1 else 's' }}</span>
+  </div>
+
+  {% if band.dossiers %}
+  <div class="cards">
+    {% for d in band.dossiers %}
+    <article class="card {{ d.score.priority.value }}">
+
+      <div class="score-rail">
+        <span class="score-value">{{ d.score.total }}</span>
+        <span class="score-max">/ 100</span>
+        <span class="score-meter" aria-hidden="true"><span style="width: {{ d.score.total }}%"></span></span>
+      </div>
+
+      <div class="card-body">
+        <div class="card-head">
+          <span class="ticker">{{ d.display_symbol }}</span>
+          {% if d.company_name %}<span class="company">{{ d.company_name }}</span>{% endif %}
+          {% if d.is_new %}<span class="badge new">new evidence</span>{% endif %}
+          {% if d.enriched %}<span class="badge enriched">enriched</span>{% endif %}
+        </div>
+
+        <div>
+          <p class="subhead">Why surfaced</p>
+          <div class="why">
+            {% for c in d.score.components %}
+            <div class="why-row">
+              <span class="why-pts">{{ c.signed }}</span>
+              <span class="why-text"><strong>{{ c.label }}</strong> &mdash; <span>{{ c.evidence }}</span></span>
+            </div>
+            {% endfor %}
+          </div>
+          {% if d.score.override_reason %}
+          <p class="override">{{ d.score.override_reason }}</p>
+          {% endif %}
+        </div>
+
+        <div>
+          <p class="subhead">Correlated evidence ({{ d.events|length }})</p>
+          <div class="evidence">
+            {% for e in d.events %}
+            <div class="evidence-item">
+              <div class="evidence-head">
+                <span class="evidence-type">{{ e.event_type.value }}</span>
+                {% if e.source_url %}
+                <a href="{{ e.source_url }}" target="_blank" rel="noopener noreferrer">{{ e.headline }}</a>
+                {% else %}
+                <span>{{ e.headline }}</span>
+                {% endif %}
+                <span class="evidence-when">{{ e.occurred_display }}</span>
+              </div>
+              {% if e.detail %}<div class="evidence-detail">{{ e.detail }}</div>{% endif %}
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="card-foot">
+          <span>run {{ report.run_id }}</span>
+          <span>source: Sectors API v2</span>
+          <span>{{ d.event_types|length }} evidence type{{ '' if d.event_types|length == 1 else 's' }}</span>
+        </div>
+      </div>
+
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty">
+    <strong>Nothing in this band</strong>
+    No ticker scored into {{ band.priority.value }} on this run.
+  </div>
+  {% endif %}
+</section>
+{% endfor %}
+
+<section class="band" aria-labelledby="source-health">
+  <div class="band-head">
+    <h2 id="source-health">Source health &amp; credit spend</h2>
+    <span class="band-count">Sectors API v2</span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Source</th>
+          <th>State</th>
+          <th class="mono">Records</th>
+          <th class="mono">Calls</th>
+          <th class="mono">Credits</th>
+          <th>Detail</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in sources %}
+        <tr>
+          <td class="mono">{{ s.name.value }}</td>
+          <td><span class="state {{ s.state.value }}">{{ s.state.value }}</span></td>
+          <td class="mono">{{ s.records }}</td>
+          <td class="mono">{{ s.calls }}</td>
+          <td class="mono">{{ s.credits }}</td>
+          <td>{{ s.error or '&mdash;'|safe }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>

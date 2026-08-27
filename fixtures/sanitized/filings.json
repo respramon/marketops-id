@@ -1,0 +1,110 @@
+{
+  "_meta": {
+    "label": "SANITIZED HISTORICAL REPLAY - NOT LIVE MARKET DATA",
+    "as_of": "2026-08-25",
+    "note": "Shapes verified against https://docs.sectors.app/schema.json (OpenAPI 3.0.3, Sectors API v2.0.0). Tickers are real IDX symbols; all figures are synthetic and exist only to exercise deterministic scoring paths. Row 3 is intentionally malformed."
+  },
+  "results": [
+    {
+      "title": "Dana Investasi Nusantara raises stake in Aneka Tambang",
+      "body": "Dana Investasi Nusantara acquired 1,412,800,000 shares of Aneka Tambang at a weighted average price of IDR 2,920, lifting its holding from 6.24% to 8.09% of issued capital.",
+      "source": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_KSEI/LK-24082026-0001-00.pdf",
+      "timestamp": "2026-08-24T15:42:11",
+      "sector": "basic-materials",
+      "sub_sector": "basic-materials",
+      "tags": [
+        "insider-trading",
+        "ownership"
+      ],
+      "symbol": "ANTM.JK",
+      "transaction_type": "buy",
+      "holder_type": "institution",
+      "holder_name": "Dana Investasi Nusantara",
+      "holding_before": 14990000000,
+      "holding_after": 16402800000,
+      "amount_transaction": 1412800000,
+      "price": 2920.0,
+      "transaction_value": 412537600000.0,
+      "price_transaction": [
+        {
+          "date": "2026-08-24",
+          "type": "buy",
+          "price": 2920,
+          "amount_transacted": 1412800000
+        }
+      ],
+      "share_percentage_before": 6.24,
+      "share_percentage_after": 8.09,
+      "share_percentage_transaction": 1.85,
+      "idx_investor_slug": null,
+      "idx_conglomerates_group_slug": null
+    },
+    {
+      "title": "Commissioner discloses share purchase in Alamtri Resources",
+      "body": "A member of the board of commissioners disclosed the purchase of 4,150,000 shares at an average price of IDR 2,145.",
+      "source": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_KSEI/LK-24082026-0002-00.pdf",
+      "timestamp": "2026-08-24T11:08:53",
+      "sector": "energy",
+      "sub_sector": "oil-gas-coal",
+      "tags": [
+        "insider-trading"
+      ],
+      "symbol": "ADRO.JK",
+      "transaction_type": "buy",
+      "holder_type": "insider",
+      "holder_name": "Board of Commissioners member",
+      "holding_before": 21400000,
+      "holding_after": 25550000,
+      "amount_transaction": 4150000,
+      "price": 2145.0,
+      "transaction_value": 8901750000.0,
+      "price_transaction": [
+        {
+          "date": "2026-08-24",
+          "type": "buy",
+          "price": 2145,
+          "amount_transacted": 4150000
+        }
+      ],
+      "share_percentage_before": 0.0,
+      "share_percentage_after": 0.62,
+      "share_percentage_transaction": 0.62,
+      "idx_investor_slug": null,
+      "idx_conglomerates_group_slug": null
+    },
+    {
+      "title": "Filing with an unresolvable issuer reference",
+      "body": "Issuer symbol was not present in the source notice.",
+      "source": null,
+      "timestamp": "2026-08-23T09:15:00",
+      "sector": "industrials",
+      "sub_sector": "industrial-goods",
+      "tags": [],
+      "symbol": null,
+      "transaction_type": "others",
+      "holder_type": null,
+      "holder_name": null,
+      "holding_before": null,
+      "holding_after": null,
+      "amount_transaction": null,
+      "price": 0.0,
+      "transaction_value": null,
+      "price_transaction": null,
+      "share_percentage_before": null,
+      "share_percentage_after": null,
+      "share_percentage_transaction": null,
+      "idx_investor_slug": null,
+      "idx_conglomerates_group_slug": null
+    }
+  ],
+  "pagination": {
+    "total_count": 3,
+    "showing": 3,
+    "limit": 30,
+    "offset": 0,
+    "has_next": false,
+    "has_previous": false,
+    "next_offset": null,
+    "previous_offset": null
+  }
+}

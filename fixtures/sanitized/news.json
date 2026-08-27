@@ -1,0 +1,92 @@
+{
+  "_meta": {
+    "label": "SANITIZED HISTORICAL REPLAY - NOT LIVE MARKET DATA",
+    "as_of": "2026-08-25",
+    "note": "Shapes verified against https://docs.sectors.app/schema.json (OpenAPI 3.0.3, Sectors API v2.0.0). Tickers are real IDX symbols; all figures are synthetic and exist only to exercise deterministic scoring paths. Article 3 names no candidate and is ignored by design."
+  },
+  "results": [
+    {
+      "title": "Aneka Tambang confirms expanded nickel processing capacity at Halmahera",
+      "body": "The company said commissioning of the additional line is scheduled for the fourth quarter, adding to installed processing capacity.",
+      "source": "https://www.example-news.co.id/2026/08/25/antam-halmahera-capacity",
+      "thumbnail": null,
+      "timestamp": "2026-08-25T08:12:00",
+      "sector": "basic-materials",
+      "sub_sector": [
+        "basic-materials"
+      ],
+      "tags": [
+        "Corporate Action",
+        "Operations",
+        "Bullish"
+      ],
+      "symbols": [
+        "ANTM.JK"
+      ],
+      "dimension": {
+        "future": 1,
+        "dividend": 0,
+        "ownership": 0,
+        "technical": 0,
+        "valuation": 0,
+        "financials": 1,
+        "management": 0,
+        "sustainability": 0
+      }
+    },
+    {
+      "title": "Merdeka Copper Gold responds to reports on Tujuh Bukit production guidance",
+      "body": "Management issued a clarification to the exchange regarding circulating reports about full-year production guidance.",
+      "source": "https://www.example-news.co.id/2026/08/25/mdka-guidance-clarification",
+      "thumbnail": null,
+      "timestamp": "2026-08-25T07:40:00",
+      "sector": "basic-materials",
+      "sub_sector": [
+        "basic-materials"
+      ],
+      "tags": [
+        "Risk & Compliance",
+        "Operations"
+      ],
+      "symbols": [
+        "MDKA.JK"
+      ],
+      "dimension": {
+        "future": 0,
+        "dividend": 0,
+        "ownership": 0,
+        "technical": 0,
+        "valuation": 0,
+        "financials": 0,
+        "management": 1,
+        "sustainability": 0
+      }
+    },
+    {
+      "title": "Rupiah steadies as Bank Indonesia holds the policy rate",
+      "body": "The central bank kept its benchmark rate unchanged at the August meeting.",
+      "source": "https://www.example-news.co.id/2026/08/25/bi-rate-hold",
+      "thumbnail": null,
+      "timestamp": "2026-08-25T06:55:00",
+      "sector": "financials",
+      "sub_sector": [
+        "banks"
+      ],
+      "tags": [
+        "Politics & Regulation"
+      ],
+      "symbols": [],
+      "dimension": null
+    }
+  ],
+  "pagination": {
+    "total_count": 3,
+    "showing": 3,
+    "limit": 30,
+    "offset": 0,
+    "has_next": false,
+    "has_previous": false,
+    "next_offset": null,
+    "previous_offset": null
+  }
+}
