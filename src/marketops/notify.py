@@ -3,7 +3,8 @@
 Two sinks, both optional and independent:
 
 * **Discord** - rich embeds, one card per dossier, colour-coded by priority.
-  This is what an analyst actually sees at 07:20 in the morning.
+  Large queues are split into limit-safe messages. This is what an analyst
+  actually sees at 07:20 in the morning.
 * **Generic webhook** - a plain JSON POST for n8n, Slack-compatible receivers,
   or an internal service.
 
@@ -38,8 +39,8 @@ logger = logging.getLogger(__name__)
 MAX_EMBEDS_PER_MESSAGE = 10
 """Discord's hard limit on embeds in a single webhook payload."""
 
-MAX_CARDS = 8
-"""How many dossiers to put in one notification before summarising the rest."""
+MAX_EMBED_TEXT_PER_MESSAGE = 6000
+"""Discord's aggregate character limit across all embeds in one message."""
 
 PRIORITY_COLOURS = {
     Priority.P1: 0xD7263D,  # red    - urgent review
@@ -98,8 +99,37 @@ def _card_lines(dossier: TickerDossier) -> str:
     return body[:4000]
 
 
-def build_discord_payload(report: RunReport, dossiers: list[TickerDossier]) -> dict[str, Any]:
-    """Assemble the Discord webhook body for one run."""
+def _discord_embed(report: RunReport, dossier: TickerDossier) -> dict[str, Any]:
+    """Build one research card within Discord's per-embed limits."""
+    title = f"{dossier.score.priority.value} - {dossier.display_symbol}"
+    if dossier.company_name:
+        title += f" - {dossier.company_name[:80]}"
+    return {
+        "title": title[:250],
+        "description": _card_lines(dossier),
+        "color": PRIORITY_COLOURS.get(dossier.score.priority, 0x8A8F98),
+        "footer": {"text": f"{DISCLAIMER} - run {report.run_id}"[:2000]},
+    }
+
+
+def _embed_text_size(embed: dict[str, Any]) -> int:
+    """Count fields included in Discord's 6,000-character aggregate limit."""
+    size = len(str(embed.get("title", ""))) + len(str(embed.get("description", "")))
+    footer = embed.get("footer")
+    if isinstance(footer, dict):
+        size += len(str(footer.get("text", "")))
+    author = embed.get("author")
+    if isinstance(author, dict):
+        size += len(str(author.get("name", "")))
+    for field in embed.get("fields", []):
+        if isinstance(field, dict):
+            size += len(str(field.get("name", "")))
+            size += len(str(field.get("value", "")))
+    return size
+
+
+def _discord_header(report: RunReport) -> list[str]:
+    """Build the common context shown above every Discord delivery batch."""
     p1 = len(report.by_priority(Priority.P1))
     p2 = len(report.by_priority(Priority.P2))
     p3 = len(report.by_priority(Priority.P3))
@@ -122,29 +152,73 @@ def build_discord_payload(report: RunReport, dossiers: list[TickerDossier]) -> d
     if report.status is RunStatus.PARTIAL:
         for warning in report.warnings[:4]:
             header_lines.append(f"> WARNING: {warning}")
+    return header_lines
 
-    embeds: list[dict[str, Any]] = []
-    for dossier in dossiers[:MAX_CARDS]:
-        title = f"{dossier.score.priority.value} - {dossier.display_symbol}"
-        if dossier.company_name:
-            title += f" - {dossier.company_name[:80]}"
-        embeds.append(
+
+def _chunk_discord_embeds(
+    report: RunReport, dossiers: list[TickerDossier]
+) -> list[list[dict[str, Any]]]:
+    """Partition cards by both Discord's count and aggregate text limits."""
+    batches: list[list[dict[str, Any]]] = []
+    current: list[dict[str, Any]] = []
+    current_size = 0
+
+    for dossier in dossiers:
+        embed = _discord_embed(report, dossier)
+        embed_size = _embed_text_size(embed)
+        count_full = len(current) >= MAX_EMBEDS_PER_MESSAGE
+        text_full = bool(current) and current_size + embed_size > MAX_EMBED_TEXT_PER_MESSAGE
+        if count_full or text_full:
+            batches.append(current)
+            current = []
+            current_size = 0
+        current.append(embed)
+        current_size += embed_size
+
+    if current:
+        batches.append(current)
+    return batches
+
+
+def build_discord_payloads(
+    report: RunReport, dossiers: list[TickerDossier]
+) -> list[dict[str, Any]]:
+    """Assemble one or more limit-safe Discord webhook bodies for a run."""
+    embed_batches = _chunk_discord_embeds(report, dossiers)
+    payloads: list[dict[str, Any]] = []
+    batch_count = len(embed_batches)
+    delivered_before = 0
+
+    for batch_index, embeds in enumerate(embed_batches, start=1):
+        header_lines = _discord_header(report)
+        if batch_count > 1:
+            first_card = delivered_before + 1
+            last_card = delivered_before + len(embeds)
+            header_lines.append(
+                f"Delivery batch **{batch_index}/{batch_count}** - "
+                f"research cards {first_card}-{last_card} of {len(dossiers)}"
+            )
+        payloads.append(
             {
-                "title": title[:250],
-                "description": _card_lines(dossier),
-                "color": PRIORITY_COLOURS.get(dossier.score.priority, 0x8A8F98),
-                "footer": {"text": f"{DISCLAIMER} - run {report.run_id}"[:2000]},
+                "username": "MarketOps ID",
+                "content": "\n".join(header_lines)[:1900],
+                "embeds": embeds,
+                "allowed_mentions": {"parse": []},
             }
         )
+        delivered_before += len(embeds)
+    return payloads
 
-    if len(dossiers) > MAX_CARDS:
-        remaining = ", ".join(d.display_symbol for d in dossiers[MAX_CARDS:])
-        header_lines.append(f"Also in the queue: {remaining[:900]}")
 
+def build_discord_payload(report: RunReport, dossiers: list[TickerDossier]) -> dict[str, Any]:
+    """Build the first limit-safe Discord body; retained for API compatibility."""
+    payloads = build_discord_payloads(report, dossiers)
+    if payloads:
+        return payloads[0]
     return {
         "username": "MarketOps ID",
-        "content": "\n".join(header_lines)[:1900],
-        "embeds": embeds[:MAX_EMBEDS_PER_MESSAGE],
+        "content": "\n".join(_discord_header(report))[:1900],
+        "embeds": [],
         "allowed_mentions": {"parse": []},
     }
 
@@ -239,7 +313,7 @@ def dispatch(
         )
         return 0, channels, errors
 
-    discord_payload = build_discord_payload(report, dossiers)
+    discord_payloads = build_discord_payloads(report, dossiers)
     generic_payload = build_generic_payload(report, dossiers)
 
     if dry_run:
@@ -250,7 +324,7 @@ def dispatch(
             target.mkdir(parents=True, exist_ok=True)
             (target / f"{report.run_id}-notification-preview.json").write_text(
                 json.dumps(
-                    {"discord": discord_payload, "generic": generic_payload},
+                    {"discord": discord_payloads, "generic": generic_payload},
                     indent=2,
                     ensure_ascii=False,
                 ),
@@ -264,11 +338,17 @@ def dispatch(
 
     if settings.discord_webhook_url:
         try:
-            _post(
-                settings.discord_webhook_url.get_secret_value(),
-                discord_payload,
-                settings.http_timeout,
-            )
+            for batch_index, discord_payload in enumerate(discord_payloads, start=1):
+                try:
+                    _post(
+                        settings.discord_webhook_url.get_secret_value(),
+                        discord_payload,
+                        settings.http_timeout,
+                    )
+                except NotificationError as exc:
+                    raise NotificationError(
+                        f"batch {batch_index}/{len(discord_payloads)} failed: {exc}"
+                    ) from exc
             channels.append("discord")
         except NotificationError as exc:
             errors.append(f"discord: {exc}")
@@ -293,8 +373,9 @@ def dispatch(
 
     sent = len(dossiers) if channels else 0
     logger.info(
-        "notify.dispatched cards=%d channels=%s errors=%d run=%s",
+        "notify.dispatched cards=%d discord_batches=%d channels=%s errors=%d run=%s",
         sent,
+        len(discord_payloads) if settings.discord_webhook_url else 0,
         ",".join(channels) or "none",
         len(errors),
         report.run_id,

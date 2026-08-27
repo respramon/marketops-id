@@ -9,6 +9,7 @@ Three properties are non-negotiable:
 
 from __future__ import annotations
 
+import json
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -29,7 +30,9 @@ from marketops.models import (
     TickerDossier,
 )
 from marketops.notify import (
+    MAX_EMBED_TEXT_PER_MESSAGE,
     build_discord_payload,
+    build_discord_payloads,
     build_generic_payload,
     dispatch,
     notifiable,
@@ -147,14 +150,18 @@ class TestDiscordPayload:
     def test_embed_count_never_exceeds_the_discord_limit(self) -> None:
         many = [_dossier(f"T{i:02d}") for i in range(25)]
         report = _report(many)
-        payload = build_discord_payload(report, notifiable(report))
-        assert len(payload["embeds"]) <= 10
+        payloads = build_discord_payloads(report, notifiable(report))
+        assert sum(len(payload["embeds"]) for payload in payloads) == 25
+        assert all(len(payload["embeds"]) <= 10 for payload in payloads)
 
-    def test_overflow_tickers_are_still_named(self) -> None:
+    def test_overflow_tickers_are_delivered_in_later_batches(self) -> None:
         many = [_dossier(f"T{i:02d}") for i in range(12)]
         report = _report(many)
-        payload = build_discord_payload(report, notifiable(report))
-        assert "Also in the queue" in payload["content"]
+        payloads = build_discord_payloads(report, notifiable(report))
+        assert len(payloads) >= 2
+        titles = [embed["title"] for payload in payloads for embed in payload["embeds"]]
+        assert all(any(dossier.display_symbol in title for title in titles) for dossier in many)
+        assert all("Delivery batch" in payload["content"] for payload in payloads)
 
     def test_mentions_are_disabled(self) -> None:
         payload = build_discord_payload(_report([_dossier()]), [_dossier()])
@@ -162,11 +169,40 @@ class TestDiscordPayload:
 
     def test_content_stays_within_discord_limits(self) -> None:
         report = _report([_dossier(f"T{i:02d}") for i in range(12)])
-        payload = build_discord_payload(report, notifiable(report))
-        assert len(payload["content"]) <= 2000
-        for embed in payload["embeds"]:
-            assert len(embed["description"]) <= 4096
-            assert len(embed["title"]) <= 256
+        payloads = build_discord_payloads(report, notifiable(report))
+        for payload in payloads:
+            assert len(payload["content"]) <= 2000
+            aggregate = 0
+            for embed in payload["embeds"]:
+                assert len(embed["description"]) <= 4096
+                assert len(embed["title"]) <= 256
+                aggregate += (
+                    len(embed["title"])
+                    + len(embed["description"])
+                    + len(embed["footer"]["text"])
+                )
+            assert aggregate <= MAX_EMBED_TEXT_PER_MESSAGE
+
+    def test_long_cards_split_on_the_aggregate_text_limit(self) -> None:
+        many: list[TickerDossier] = []
+        for index in range(8):
+            dossier = _dossier(f"L{index:02d}")
+            dossier.score = ScoreBreakdown(
+                total=75,
+                priority=Priority.P1,
+                components=[
+                    ScoreComponent(
+                        label="Long but valid evidence",
+                        points=75,
+                        evidence="material evidence " * 100,
+                    )
+                ],
+            )
+            many.append(dossier)
+        report = _report(many)
+        payloads = build_discord_payloads(report, notifiable(report))
+        assert len(payloads) > 1
+        assert sum(len(payload["embeds"]) for payload in payloads) == len(many)
 
     def test_suspension_override_reason_is_shown(self) -> None:
         events = [suspension_event("FLMC")]
@@ -216,6 +252,36 @@ class TestDispatch:
         assert channels == ["discord"]
         assert errors == []
         assert route.call_count == 1
+
+    @respx.mock
+    def test_large_queue_is_sent_across_multiple_discord_messages(
+        self, settings: Settings
+    ) -> None:
+        route = respx.post(HOOK).mock(return_value=httpx.Response(204))
+        configured = settings.model_copy(update={"discord_webhook_url": _secret(HOOK)})
+        report = _report([_dossier(f"T{i:02d}") for i in range(16)])
+        expected_batches = len(build_discord_payloads(report, notifiable(report)))
+        sent, channels, errors = dispatch(report, configured)
+        assert expected_batches > 1
+        assert sent == 16
+        assert channels == ["discord"]
+        assert errors == []
+        assert route.call_count == expected_batches
+
+    @respx.mock
+    def test_partial_discord_batch_failure_keeps_every_card_pending(
+        self, settings: Settings
+    ) -> None:
+        route = respx.post(HOOK).mock(
+            side_effect=[httpx.Response(204), httpx.Response(400)]
+        )
+        configured = settings.model_copy(update={"discord_webhook_url": _secret(HOOK)})
+        report = _report([_dossier(f"T{i:02d}") for i in range(16)])
+        sent, channels, errors = dispatch(report, configured)
+        assert route.call_count == 2
+        assert sent == 0
+        assert channels == []
+        assert errors and "batch 2/" in errors[0]
 
     @respx.mock
     def test_webhook_failure_is_reported_not_raised(self, settings: Settings) -> None:
@@ -269,7 +335,9 @@ class TestDispatch:
         assert errors == []
         preview = tmp_path / f"{report.run_id}-notification-preview.json"
         assert preview.exists()
-        assert "discord" in preview.read_text(encoding="utf-8")
+        preview_payload = json.loads(preview.read_text(encoding="utf-8"))
+        assert isinstance(preview_payload["discord"], list)
+        assert len(preview_payload["discord"]) == 1
 
     def test_dry_run_does_not_preview_previously_seen_evidence(self, settings: Settings) -> None:
         report = _report([_dossier(is_new=False)])
