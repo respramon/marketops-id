@@ -112,8 +112,8 @@ final media, or portal access. Re-run every check immediately before submission.
 - [x] `doctor` reports presence/status without printing secret values.
 - [x] Pre-publication working-tree and index credential scan returned zero
   strict-pattern matches on 2026-08-27.
-- [x] Full Git-history scan returned zero strict-pattern matches through
-  commit `841b55f`; repeat after the final commit during freeze.
+- [x] Full Git-history scan returned zero strict-pattern matches at the latest
+  pre-freeze checkpoint; repeat after the final freeze commit.
 - [ ] If any secret was committed: stop, revoke and rotate it, clean history as
   appropriate before submission, and follow the official post-freeze exception
   if already submitted.

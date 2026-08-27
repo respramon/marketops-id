@@ -11,10 +11,11 @@ penetration test of Sectors, Discord, GitHub, or the operator's workstation.
 **PASS for the working tree and published Git history, with external evidence
 gates still pending.**
 
-No credential value was found in the working tree, index, or four commits
-through `841b55f`. The public repository was also opened in a logged-out
-browser. This audit is repeated immediately before freeze because later commits
-or recording artifacts can introduce new exposure.
+No credential value was found in the working tree, index, or full repository
+history at the audit checkpoint. The public repository was also opened in a
+logged-out browser. The scan is repeated after this audit record is published
+and immediately before freeze because later commits or recording artifacts can
+introduce new exposure.
 
 ## Checks Performed
 
@@ -23,7 +24,7 @@ or recording artifacts can introduce new exposure.
 | Environment-only credentials | PASS | `Settings` reads `SECTORS_API_KEY`, `DISCORD_WEBHOOK_URL`, and `GENERIC_WEBHOOK_URL` as `SecretStr`; no source file contains a production value. |
 | Ignore policy | PASS | `.env`, keys, databases, logs, artifacts, cache directories, and browser-test output are ignored. `.env.example` contains empty placeholders only. |
 | Working-tree secret scan | PASS | A strict production-credential pattern scan returned zero matches in the working tree and index. Only aggregate counts were printed, never candidate values. |
-| Git-history secret scan | PASS | The same scan returned zero matches across all four commits through `841b55f`. Re-run after the final commit and immediately before submission. |
+| Git-history secret scan | PASS | The same scan returned zero matches across every commit present at the audit checkpoint. A post-push scan covers the audit commit itself; repeat again after the final freeze commit. |
 | API request security | PASS | Sectors base URL is fixed to HTTPS; the raw API key is sent only in the verified `Authorization` header and is never logged. |
 | Webhook secrecy | PASS | Webhook exceptions report sink/status only, not URLs. Payloads and artifacts omit configured webhook URLs. |
 | Untrusted source links | PASS | Provenance URLs accept only absolute HTTP(S) links with a host and reject control characters, `javascript:`, `data:`, and relative URLs. |
