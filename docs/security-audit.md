@@ -91,7 +91,7 @@ artifact.
 | Working-tree and Git-history scan | PASS, limited scope | Earlier strict scans found no committed production credential. Generated Actions artifacts are a separate publication boundary and caused SEC-001. Repeat both repository and artifact scans after remediation and before freeze. |
 | Post-containment artifact/log scan | PASS for remaining material | The three affected artifact IDs are absent/404. Six remaining artifacts (38 files) and 9/9 accessible job logs produced zero findings across the defined credential patterns. |
 | API request security | PASS | The Sectors base URL is fixed to HTTPS; its key is sent in the verified `Authorization` header. No Sectors-key exposure is part of the confirmed finding; repeat artifact scanning after the replacement run. |
-| Webhook secrecy | BLOCKED | The old webhook is revoked and removed, but the redacting formatter and artifact scrub are not yet committed/pushed/CI-verified. |
+| Webhook secrecy | BLOCKED | The old webhook is revoked and removed; the redacting formatter and artifact scrub are now committed, pushed, and CI-verified (run 33153711435). A new webhook has not yet been issued or safely exercised. |
 | Untrusted source links | PASS | Provenance URLs accept only absolute HTTP(S) links with a host and reject control characters, `javascript:`, `data:`, and relative URLs. |
 | HTML rendering | PASS | Jinja autoescaping is enabled. External text is rendered as text; source links carry `rel="noopener noreferrer"`. |
 | Dashboard hardening | PASS | Read-only routes, Trusted Host allowlist, disabled interactive docs by default, script-free CSP, security headers, and no-store cache headers are tested. |

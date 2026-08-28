@@ -28,7 +28,7 @@ own QA segment only when its non-qualifying label stays visible.
 | 00:58–01:17 | P1 card + component list | Fixture banner | The Research Attention Score is deterministic and shows each reason. |
 | 01:17–01:34 | Suspension card + disclaimer | `Research triage only` | Suspensions can force P1; this is not a trade recommendation. |
 | 01:34–01:50 | Replay result | `Preview only — no external delivery` | SQLite fingerprints make a repeated data window quiet on the second run. |
-| 01:50–02:12 | Current local test asset, prior public CI, and `assets/discord-result.png` | `LOCAL: 400 tests / 95.62%`; `PUBLIC CI: prior 378 / 94.93%`; `HISTORICAL DELIVERY — SEC-001 CONTAINED` | The security fix passes locally, while new public CI and a clean replacement delivery artifact remain pending. |
+| 01:50–02:12 | Current local test asset, prior public CI, and `assets/discord-result.png` | `LOCAL: 400 tests / 95.62%`; `PUBLIC CI: prior 378 / 94.93%`; `HISTORICAL DELIVERY — SEC-001 CONTAINED` | The security fix now passes public CI; a clean replacement delivery artifact remains pending. |
 | 02:12–02:31 | Pending `actions-history.png` / `scheduled-run.png`, replaced only after recovery and three scheduler firings | Match run ID, timestamp, mode, `schedule` trigger, and clean artifact scan | Schedule count is zero; three genuine post-remediation runs are still required and manual evidence cannot fill the slots. |
 | 02:31–02:48 | Closing dashboard/architecture frame | None | MarketOps transforms Sectors evidence into an auditable research queue. |
 

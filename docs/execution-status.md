@@ -82,11 +82,13 @@ passed Ruff, mypy, pytest/coverage, the installed-wheel smoke test, report
 upload, and gate enforcement for commit `3f3bed7`. Official third-party
 Actions are pinned to immutable release SHAs.
 
-This is the last verified public code checkpoint. The SEC-001 remediation is
-now committed locally as `2e51bd8` and is green on the full local gate (Ruff,
-mypy, 400 tests, 95.62% coverage), but it has not been pushed, so it has not
-yet passed public CI. Notification, Automation, and Security Audit remain
-blocked regardless of this earlier green run and the local gate.
+The SEC-001 remediation has now been pushed and is verified by public
+[CI run `33153711435`](https://github.com/respramon/marketops-id/actions/runs/33153711435)
+for commit `fa0d0eb`, which passed Ruff, mypy, pytest/coverage (400 tests at
+95.62%), the installed-wheel smoke test, and gate enforcement. That is the
+current verified public code checkpoint. Notification, Automation, and
+Unattended Run Evidence remain blocked on a newly issued webhook and genuine
+schedule-triggered runs, independent of this green code checkpoint.
 
 ## Automation
 
@@ -98,9 +100,10 @@ cycles select `live` mode, restore SQLite state, write structured artifacts,
 save state, and never auto-commit runtime data.
 
 The scheduler is currently **disabled manually** as containment for SEC-001.
-It must not be re-enabled until the redacting logger and pre-upload artifact
-scrub are committed, pushed, CI-verified, and exercised with a newly issued
-webhook in a clean manual run.
+The redacting logger and pre-upload artifact scrub are now committed, pushed,
+and CI-verified (`2e51bd8`; CI run 33153711435). It must not be re-enabled
+until that fix is also exercised with a newly issued webhook in a clean manual
+run.
 
 Two public manual fixture runs verified the hosted execution path without
 claiming Track 2 qualification. Run
@@ -174,8 +177,8 @@ BLOCKED
 Repository scans did not find a committed production credential, but that
 scope missed generated workflow artifacts. SEC-001 confirms that three public
 artifacts contained the full Discord webhook URL. Containment is complete;
-remediation is committed locally (`2e51bd8`) and green on the full local gate,
-but not yet pushed, public-CI-verified, or safely exercised.
+remediation is committed, pushed, and public-CI-verified (`2e51bd8`; CI run
+33153711435), but not yet safely exercised with a newly issued webhook.
 All three affected artifact IDs now resolve absent/404. A post-containment scan
 of six remaining MarketOps artifacts (38 files) and 9/9 accessible job logs
 returned zero findings for the defined credential patterns.
@@ -207,16 +210,15 @@ artifact evidence must be regenerated after SEC-001 remediation.
 
 ## Current Blocker
 
-`[BLOCKED: SECURITY REMEDIATION + HUMAN ACTION REQUIRED]` SEC-001 is contained,
-but its two-layer fix, though committed locally (`2e51bd8`) and green on the
-full local gate, is not yet pushed or public-CI-verified, there is no current
-Discord webhook secret, and the scheduler is disabled. Genuine schedule count
-remains zero.
+`[BLOCKED: HUMAN ACTION REQUIRED]` SEC-001 is contained and its two-layer fix
+is now committed, pushed, and public-CI-verified (`2e51bd8`; CI run
+33153711435), but there is still no current Discord webhook secret, and the
+scheduler is disabled. Genuine schedule count remains zero.
 
 ## Next Action
 
-Push the committed remediation (`2e51bd8`) and confirm public CI is green. Then
-create a new Discord webhook through the account owner, store it only in GitHub
+Create a new Discord webhook through the account owner, store it only in GitHub
 Secrets, perform and inspect one safe manual delivery, and only then re-enable
 the weekday scheduler. Three later genuine `schedule` runs must still be captured
-before recording the final judging video.
+before recording the final judging video. The logging/artifact remediation is
+already pushed and public-CI-verified (`2e51bd8`; CI run 33153711435).

@@ -203,13 +203,14 @@ pipelines, 429 retry, repeated 500, timeouts, malformed API responses,
 notifications, CLI commands, and the read-only dashboard.
 
 Local QA on 28 August 2026 passed Ruff, strict mypy across 14 source files, and
-400 tests at 95.62% coverage. The latest public
+400 tests at 95.62% coverage. The earlier public
 [CI run for commit `3f3bed7`](https://github.com/respramon/marketops-id/actions/runs/33040157886)
 predates the security remediation and passed 378 tests at 94.93% coverage plus
-an installed-wheel smoke test. A new public CI result is still required. The
-wheel gate protects packaged
-configuration, fixtures, templates, and static assets from deployment-only
-regressions.
+an installed-wheel smoke test. Public
+[CI run `33153711435`](https://github.com/respramon/marketops-id/actions/runs/33153711435)
+then verified the pushed remediation on commit `fa0d0eb` at 400 tests and
+95.62% coverage. The wheel gate protects packaged configuration, fixtures,
+templates, and static assets from deployment-only regressions.
 
 Security controls include environment-only secrets, an HTTPS-only Sectors API
 target,
