@@ -6,20 +6,21 @@ from qualifying Track 2 evidence.
 
 ## Qualification Status
 
-`[BLOCKED: HUMAN ACTION REQUIRED]`
+`[BLOCKED: SECURITY REMEDIATION + HUMAN ACTION REQUIRED]`
 
-The repository does not yet contain evidence of a genuine scheduled GitHub
-Actions run. Manual runs, tests, dry-notify previews, and fixture replay are
-valuable engineering evidence but do **not** prove unattended automation.
+The public repository and authenticated Sectors integration were validated.
+Historical manual Discord delivery also occurred, but three of its related
+public artifacts exposed the old webhook URL in `workflow.log`. The affected
+artifacts were deleted, the webhook was revoked, the Discord GitHub Secret was
+removed, and the scheduler was disabled. Notification and artifact publication
+must be revalidated after SEC-001 remediation.
 
-At this snapshot, the local repository has no commit history, configured
-remote, API key, or webhook secret available for inspection. Therefore no
-public GitHub run URL, authenticated Sectors execution, or real delivery may be
-inferred from the local workflow files or artifacts.
-
-The account owner must push the project to a public GitHub repository, configure
-the required GitHub Secrets, enable Actions, and let at least three weekday
-`schedule` executions complete before replacing this status.
+The repository does not yet contain any genuine scheduled GitHub Actions run.
+After remediation is committed/pushed/CI-verified, a new webhook passes a clean
+manual delivery, and the schedule is re-enabled, let three separate `schedule`
+executions complete. Then populate the protected placeholders in
+[`unattended-runs.md`](unattended-runs.md) from their public run pages and JSON
+artifacts. Do not promote any `workflow_dispatch` result into those slots.
 
 ## Evidence Standard
 
@@ -37,6 +38,8 @@ A qualifying run must have all of the following:
 - Notification delivery is visible when there is new qualifying evidence, or a
   truthful zero-notification reason is shown.
 - No screenshot, log, or artifact exposes an API key or webhook URL.
+- The pre-upload artifact scrub completes without finding/redacting a secret;
+  any run that triggers the fail-on-redaction gate is non-qualifying.
 
 Three separate scheduler firings should be recorded in
 [`unattended-runs.md`](unattended-runs.md). A single screenshot of Actions
@@ -49,7 +52,7 @@ counters, artifact name, and accessible run URL.
 |---|---|---|
 | `submission/assets/actions-history.png` | At least three completed runs whose event is `schedule` | Capture from the real public repository |
 | `submission/assets/scheduled-run.png` | One scheduled run detail page with workflow name, status, timestamp, and event | Do not substitute a manual dispatch |
-| `submission/assets/discord-result.png` | Real delivered research queue and timestamp | Redact the webhook URL; never mock this as delivered |
+| `submission/assets/discord-result.png` | Clean post-remediation delivery summary or a redacted real Discord UI capture | The current image is a historical/incident-contained summary and must be replaced before final submission proof |
 | `submission/assets/dashboard.png` | Latest **live** scheduled run, source health, and summary metrics | The visible mode/trigger must match the run artifact |
 | `submission/assets/p1-card.png` | A real or clearly labeled fixture P1 explanation | If fixture-based, keep the replay banner in frame |
 | `submission/assets/test-pass.png` | Required lint, type, tests, coverage output or green CI job | Coverage value must match the captured run |
@@ -74,7 +77,9 @@ storage as well; do not commit a database containing secrets or unrelated data.
 1. Confirm the run was triggered by `schedule` and used `mode: live`.
 2. Open the JSON artifact and verify source states, timestamp timezone, credit
    estimate, and disclaimer.
-3. Inspect logs for accidental credential output before recording or sharing.
+3. Verify the artifact scrub passed, then independently inspect logs and every
+   downloadable artifact for accidental credential output before recording or
+   sharing.
 4. Capture the Actions history, one run detail, the HTML report/dashboard, and
    any real webhook result.
 5. Record the exact values in `unattended-runs.md`; never transcribe from memory.
@@ -93,3 +98,13 @@ In fixture mode, `estimated_api_credits` is the simulated cost of equivalent
 live requests. Actual Sectors credit consumption is zero because no network
 request occurs. A dry-notify count represents cards rendered for preview, not
 messages delivered to an external channel.
+
+## Manual Live QA
+
+Authenticated live ingestion, fail-soft reporting, historical Discord
+delivery, and production-state deduplication were exercised through public
+manual Actions runs. The complete run-by-run record and SEC-001 containment are
+in [`manual-live-qa.md`](manual-live-qa.md). Affected source artifacts were
+deleted, so these runs no longer establish current clean delivery evidence.
+They also remain separate from Track 2 qualification because their GitHub event
+was `workflow_dispatch`.

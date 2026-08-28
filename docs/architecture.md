@@ -14,7 +14,7 @@ security.
 
 ```mermaid
 flowchart LR
-    Scheduler[GitHub Actions<br/>weekday schedule] --> CLI[marketops run<br/>trigger=schedule]
+    Scheduler[GitHub Actions weekday schedule<br/>configured; currently disabled] --> CLI[marketops run<br/>trigger=schedule]
     CLI --> Sectors[Sectors Financial API v2]
     Sectors --> Discovery[Filings<br/>Suspensions<br/>1-day movers]
     Discovery --> Candidates[Deterministic<br/>candidate ranking]
@@ -25,9 +25,11 @@ flowchart LR
     Correlate --> Score[Research Attention<br/>Score + explanation]
     Score --> State[(SQLite state)]
     State --> Dedupe{Any new<br/>event IDs?}
-    Dedupe -->|yes| Notify[Discord and/or<br/>generic webhook]
+    Dedupe -->|yes| Notify[Limit-safe Discord batches<br/>and/or generic webhook]
     Dedupe -->|no| Suppress[Suppress repeat alert]
-    Score --> Artifacts[JSON metadata<br/>HTML report<br/>Markdown summary<br/>structured logs]
+    Score --> Staged[Staged reports<br/>and structured logs]
+    Staged --> Guard[Pending-release<br/>artifact scrub gate]
+    Guard --> Artifacts[Clean JSON<br/>HTML + Markdown]
     State --> Dashboard[Read-only FastAPI<br/>dashboard and API]
 ```
 
@@ -39,10 +41,11 @@ to make development and judging replay deterministic without spending credits.
 
 ## End-to-End Run
 
-1. When GitHub Actions is enabled for the pushed repository, its weekday
-   schedule is configured to start `marketops run --mode live --trigger
+1. When GitHub Actions is safely re-enabled for the pushed repository, its
+   weekday schedule is configured to start `marketops run --mode live --trigger
    schedule`. A manual trigger exists for diagnosis, but is not the Track 2
-   proof. No genuine scheduled execution is documented yet; see
+   proof. The scheduler is disabled during SEC-001 containment and no genuine
+   scheduled execution is documented yet; see
    [`../evidence/unattended-runs.md`](../evidence/unattended-runs.md).
 2. The typed HTTP client performs broad discovery over a configured lookback:
    filings, suspensions, and the top gainers and losers for the `1d` period.
@@ -62,11 +65,14 @@ to make development and judging replay deterministic without spending credits.
    on replay, while real delivery is eligible only for evidence that has not
    reached a sink.
 8. Evidence is claimed before notification and successful real delivery is
-   separately recorded in the `alerts` table. A failed webhook therefore leaves
-   the card pending for a safe retry rather than losing it to deduplication.
+   separately recorded in the `alerts` table. Discord queues are partitioned
+   by both its 10-embed count limit and 6,000-character aggregate embed-text
+   limit. A failed webhook or partial batch sequence leaves the cards pending
+   for a safe retry rather than losing them to deduplication.
 9. The run, source health, warnings, estimated credits, queue, and timestamps
    are persisted. JSON, standalone HTML, Markdown, and run-history artifacts
-   are written for CI retention and audit.
+   are written for CI retention and audit. The pending-release workflow scrubs
+   this directory and fails on any redaction before upload.
 10. The dashboard reads the latest persisted run. It has no route that can
     start or mutate the pipeline.
 
@@ -81,7 +87,8 @@ to make development and judging replay deterministic without spending credits.
 | `marketops.scoring` | Config-driven score, priority bands, explanations, suspension override |
 | `marketops.state` | SQLite schema, event partitioning, run history, delivery audit |
 | `marketops.pipeline` | Discovery, selective enrichment, fail-soft orchestration, verdict generation |
-| `marketops.notify` | Discord embeds, generic JSON payloads, dry-run preview, safe webhook errors |
+| `marketops.notify` | Limit-safe Discord message batches, generic JSON payloads, dry-run preview, safe webhook errors |
+| `marketops.security` | Pending-release secret-redacting formatter, quiet HTTP transport logging, recursive artifact scrub, and fail-on-redaction gate |
 | `marketops.render` | Standalone HTML, JSON, Markdown, and terminal summaries |
 | `marketops.web` | Read-only dashboard plus `/api/latest`, `/api/runs`, and `/healthz` |
 
@@ -176,8 +183,13 @@ artifacts are evidence and diagnostics, not the deduplication source of truth.
   The production default reads one maximum-size page (30 rows); if another page
   exists, the source reports a visible gap and the run becomes `PARTIAL` rather
   than silently implying complete coverage.
-- Notification failure makes an otherwise healthy run `PARTIAL`; it never
-  prints a webhook URL or API key.
+- Notification failure makes an otherwise healthy run `PARTIAL`. Application
+  exceptions omit sink URLs and keys; SEC-001 showed that dependency transport
+  logs must also be redacted before artifact publication.
+- A Discord channel is recorded as successful only after every message batch
+  succeeds. Count-and-text-aware batching prevents valid individual embeds
+  from exceeding the aggregate message limit; partial delivery remains pending
+  for at-least-once retry.
 - A malformed source record is skipped, counted, and disclosed in warnings.
 
 ## Trust Boundaries and Secrets
@@ -189,14 +201,22 @@ flowchart TB
     Client -->|Authorization header| API[api.sectors.app]
     API -->|market data only| Pipeline[Pipeline]
     Pipeline -->|no credentials| DB[(SQLite)]
-    Pipeline -->|no credentials| Files[Run artifacts]
+    Pipeline --> Logs[Rendered run logs and reports]
+    Logs --> Guard[Redaction + artifact scrub gate]
+    Guard -->|clean only| Files[Run artifacts]
     Notifier -->|research-card JSON| Sink[Discord / generic webhook]
 ```
 
 Secrets are represented as Pydantic `SecretStr`, loaded from environment
-variables, omitted from output, and ignored by Git. Source URLs and market data
-are treated as untrusted display content; Jinja auto-escaping remains enabled.
-The dashboard is a local/read-only evidence viewer, not a multi-user service.
+variables, and ignored by Git. That protects source/configuration surfaces but
+does not automatically sanitize third-party log records. SEC-001 confirmed
+that an `httpx` INFO record put the full Discord request URL in three uploaded
+`workflow.log` files. The old webhook and affected artifacts were deleted, the
+Discord GitHub Secret was removed, and the scheduler was disabled. The guard
+shown above exists in the uncommitted remediation and must be published and
+verified before operation resumes. Source URLs and market data are treated as
+untrusted display content; Jinja auto-escaping remains enabled. The dashboard
+is a local/read-only evidence viewer, not a multi-user service.
 
 ## Fixture and Live Data Boundary
 
@@ -209,8 +229,28 @@ Used for deterministic testing and demo.
 
 Ticker symbols are real IDX symbols, but fixture figures and example-news URLs
 are synthetic. Every fixture artifact has `mode: fixture` and a visible replay
-banner. Only an authenticated `mode: live` scheduled run can be presented as
-current market monitoring.
+banner. After security recovery, authenticated `mode: live` manual runs may
+validate current data and delivery, but only a run whose GitHub event is
+`schedule` can be presented as unattended Track 2 proof.
+
+## Hosted Live Validation
+
+All runs in this section were explicit `workflow_dispatch` QA and are not
+scheduled-run evidence. Their counters were verified before incident
+containment; affected source artifacts were deleted and only public run
+metadata/job pages remain:
+
+- Run `33039796607` exercised all six Sectors capabilities, normalized 77
+  events, built 33 candidates, selectively enriched five tickers, and used the
+  15-credit ceiling. The only source warning was a visible news-page cap.
+- The first real Discord attempt returned HTTP 400 because its embeds exceeded
+  the aggregate text limit. Commit `3f3bed7` introduced the batching policy
+  described above.
+- Run `33040201783` restored the pending cards and historically delivered all
+  16 across three Discord messages. Its artifact was later found to contain the
+  webhook URL and was deleted under SEC-001.
+- Run `33040251479` restored the successful production state, suppressed 77
+  duplicate events, and delivered zero notifications.
 
 ## Known Scope Boundaries
 
@@ -220,8 +260,10 @@ current market monitoring.
   `has_next` response is disclosed as incomplete evidence.
 - It is a single-team, single-state workflow without user authentication.
 - SQLite cache persistence was verified across two separate manual hosted
-  workflow runs. GitHub Actions cache remains operational state rather than a
-  backup, and genuine schedule-triggered durability evidence is still pending.
+  fixture runs and across the successful manual live delivery/replay pair.
+  GitHub Actions cache remains operational state rather than a backup, and
+  genuine schedule-triggered durability evidence is still pending. The
+  scheduler remains disabled until security recovery is complete.
 - Webhooks provide delivery, not acknowledgment or escalation tracking.
 - `max_concurrency` is configurable for future expansion; the current client
   issues calls sequentially for deterministic budget and retry behavior.

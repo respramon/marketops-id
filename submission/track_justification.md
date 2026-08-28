@@ -21,9 +21,10 @@ Weekday schedule at approximately 07:17 WIB
   -> logs, run state, and audit artifacts
 ```
 
-The dashboard is deliberately read-only: it shows work the scheduler has
-already completed. `workflow_dispatch` and the CLI remain available for testing
-and incident diagnosis, but they are not presented as Track 2 qualification.
+The dashboard is deliberately read-only: it shows work a completed pipeline run
+has already produced. `workflow_dispatch` and the CLI remain available for
+testing and incident diagnosis, but they are not presented as Track 2
+qualification.
 
 ## Why Sectors Is Core
 
@@ -47,19 +48,34 @@ live mode, upload logs and report artifacts, and save updated state for the next
 weekday. Each `RunReport` records trigger, timestamps, status, source health,
 events, new/duplicate counts, candidates, notification count, and estimated
 credits. The event fingerprint is stable across runners, so repeated evidence
-is not re-alerted.
+is not re-alerted. The scheduler is currently disabled during SEC-001
+containment.
+
+The same production path was exercised through public manual Actions QA.
+An authenticated live run historically delivered 16 pending research cards across three
+Discord messages after batching by both embed count and aggregate text size.
+Its identical live replay restored production state, recognized 77 duplicates,
+and sent zero notifications. The live reports were `PARTIAL` only because the
+news source visibly hit its configured record cap; they never presented that
+gap as an all-clear. The delivery artifacts are no longer public: a later audit
+found the full webhook URL in three `workflow.log` files, and those artifacts
+were deleted. See `evidence/manual-live-qa.md` for the incident-aware audit
+trail.
 
 ## Qualification Evidence Status
 
-`[BLOCKED: HUMAN ACTION REQUIRED]`
+`[BLOCKED: SECURITY REMEDIATION + HUMAN ACTION REQUIRED]`
 
-The local pipeline, public CI, artifact upload, and cross-run cache restore are
-working. Two public fixture dispatches demonstrate hosted engineering behavior,
-but a manual run is not enough for Track 2. Before submission, the owner must
-capture at least three genuine GitHub Actions runs whose event is `schedule`,
-along with run logs, artifacts, timestamps, state restoration, and notification
-results. Those real entries belong in `evidence/unattended-runs.md` and must
-appear in the judging video.
+The local pipeline, public CI, artifact upload, cross-run state restore,
+and authenticated Sectors calls are verified. Notification, artifact security,
+and automation are blocked: the old webhook is revoked, its secret is deleted,
+and the scheduler is disabled until the two-layer remediation passes public CI
+and a clean replacement delivery. Every public production QA run so far also
+has event `workflow_dispatch`; a manual run is not enough for Track 2. After
+security recovery, the owner must capture at least three later genuine GitHub
+Actions runs whose event is `schedule`, along with clean logs, artifacts,
+timestamps, state restoration, and notification results. Those real entries belong in
+`evidence/unattended-runs.md` and must appear in the judging video.
 
 ## Scope and Safety
 

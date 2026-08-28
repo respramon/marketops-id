@@ -50,15 +50,32 @@ Each run persists an audit record and creates structured logs, JSON metadata,
 a standalone HTML report, and a Markdown summary. A read-only FastAPI dashboard
 shows the latest run, P1/P2/P3 cards, score breakdowns, correlated source
 evidence, credit usage, and run history. New queues can be delivered through a
-Discord or generic webhook.
+Discord or generic webhook. Discord output is split by both the platform's
+embed-count and aggregate-text limits, while delivery eligibility remains
+pending if any batch fails.
 
-The engineering checks pass locally and in public CI: Ruff, strict mypy, and
-375 pytest tests with 95.08% measured coverage (27 August 2026 WIB). CI also
-installs the built wheel outside the checkout. Two public manual hosted fixture
-runs verified artifact upload and cross-run state restoration, but are not
-presented as Track 2 proof. Authenticated live API execution, webhook delivery
-evidence, and genuine scheduled-run proof remain external account actions and
-must be completed before this copy is used as a final submission claim.
+Current local engineering checks pass: Ruff, strict mypy across 14 source
+files, and 400 pytest tests with 95.62% measured coverage (28 August 2026 WIB).
+The last public CI checkpoint predates the security remediation and passed 378
+tests at 94.93% plus an installed-wheel smoke test. Public manual Actions QA
+historically exercised authenticated live Sectors ingestion, the 15-credit
+hard budget, fail-soft source warnings, and Discord delivery. One run delivered
+16 research cards across three messages; its replay suppressed 77 duplicate
+events and delivered zero.
+
+That QA also exposed SEC-001: `httpx` INFO logging wrote the full Discord
+webhook URL into three uploaded `workflow.log` artifacts. The affected
+artifacts were deleted, the old webhook was revoked, its GitHub Secret was
+removed, and the scheduler was disabled. A two-layer redacting-logger and
+pre-upload artifact-scrub remediation passes locally but still requires commit,
+push, public CI, a newly issued webhook, and a clean replacement delivery.
+
+Those public QA executions were triggered with `workflow_dispatch`. They prove
+the production path works, but are deliberately not presented as Track 2
+unattended evidence. Three genuine weekday `schedule` runs, final video uploads,
+and portal submission remain pending before the project can be called fully
+submission-complete. Schedule evidence collection starts only after the
+security recovery is verified and automation is safely re-enabled.
 
 > Research triage only. MarketOps ID does not provide investment
 > recommendations or execute trades.

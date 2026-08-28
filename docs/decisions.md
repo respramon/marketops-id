@@ -144,7 +144,9 @@ otherwise.
 - **Why:** A research team needs the queue in its existing workflow. Webhooks
   demonstrate delivery without building a messaging platform.
 - **Consequence:** Sink failure is reported as `PARTIAL`; secrets never appear
-  in error messages.
+  in application-generated error messages. Dependency transport logs and
+  generated artifacts are separate security boundaries; ADR-019 addresses the
+  disclosure found at that boundary.
 
 ## ADR-013: Keep a production-shaped sanitized replay
 
@@ -206,3 +208,45 @@ otherwise.
   the exact runner implementation auditable.
 - **Consequence:** Action upgrades are explicit repository changes. Their tags,
   SHAs, and hosted-run behavior must be re-verified when updated.
+
+## ADR-018: Batch Discord delivery by aggregate text as well as embed count
+
+- **Date:** 2026-08-27
+- **Status:** Accepted
+- **Decision:** Partition a Discord research queue so every message stays
+  within both the 10-embed limit and the 6,000-character aggregate embed-text
+  limit. Treat the channel as successful only when every batch succeeds.
+- **Why:** Manual authenticated live run `33039918857` showed that eight
+  individually valid embeds can still exceed Discord's aggregate message
+  limit and receive HTTP 400. Embed count alone is therefore not a sufficient
+  payload guard.
+- **Consequence:** Large queues are delivered across multiple messages. If any
+  batch fails, the cards are not marked delivered and remain eligible for an
+  at-least-once retry. Commit `3f3bed7` implemented this policy; manual live run
+  `33040201783` delivered 16 cards across three messages, and replay
+  `33040251479` delivered zero after suppressing 77 duplicates. These manual
+  `workflow_dispatch` runs validate delivery semantics, not scheduled Track 2
+  qualification. Their delivery counters remain historical facts, but the
+  affected downloadable artifacts were later removed during SEC-001
+  containment and are not current submission evidence.
+
+## ADR-019: Treat logs and artifacts as credential-publication boundaries
+
+- **Date:** 2026-08-28
+- **Status:** Accepted; implementation pending public verification
+- **Decision:** Apply two independent controls before any run evidence is
+  uploaded: redact configured secrets and Discord-webhook URL shapes from the
+  final rendered log line while silencing `httpx`/`httpcore` INFO transport
+  logs, then recursively scrub the artifact directory and fail the workflow if
+  any credential occurrence had to be removed.
+- **Why:** SEC-001 confirmed that `httpx` logged the full request URL and
+  `tee` persisted it to `workflow.log`. Because Discord authenticates in the
+  URL path, three public artifacts contained the webhook credential even
+  though source code, Git history, exception messages, and the Actions console
+  did not intentionally expose it.
+- **Consequence:** Artifact upload is no longer allowed to rely on console
+  masking or application-level error hygiene. The old webhook and affected
+  artifacts were revoked/deleted, the Discord secret was removed, and the
+  scheduler is disabled. Notification and scheduling stay blocked until this
+  decision is committed, pushed, CI-verified, exercised with a new webhook,
+  and the replacement artifact is confirmed clean.

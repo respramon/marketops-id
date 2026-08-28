@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">MarketOps ID historical Discord delivery and containment summary</title>
+  <desc id="desc">A code-native audit summary of a manual live Discord delivery, duplicate-suppressed replay, and subsequent security containment. It is not a Discord interface screenshot and not scheduled-run proof.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#07111f"/>
+      <stop offset="1" stop-color="#16233b"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="24" flood-color="#02050b" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <circle cx="1450" cy="80" r="250" fill="#5865f2" opacity="0.16"/>
+  <circle cx="80" cy="860" r="330" fill="#16a77a" opacity="0.13"/>
+
+  <text x="88" y="78" fill="#8ea3bd" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="22" font-weight="700" letter-spacing="3">MARKETOPS ID / HISTORICAL MANUAL QA</text>
+  <text x="88" y="139" fill="#f5f8ff" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="47" font-weight="760">Delivery worked. Replay stayed quiet.</text>
+  <rect x="88" y="169" width="880" height="46" rx="23" fill="#3a2818" stroke="#f2aa58" stroke-width="1.5"/>
+  <text x="116" y="200" fill="#ffd4a1" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="19" font-weight="700">WORKFLOW_DISPATCH / NOT SCHEDULED PROOF / NOT DISCORD UI</text>
+
+  <g filter="url(#shadow)">
+    <rect x="88" y="254" width="690" height="392" rx="28" fill="#111d31" stroke="#5865f2" stroke-width="2"/>
+    <rect x="822" y="254" width="690" height="392" rx="28" fill="#101f2d" stroke="#36c798" stroke-width="2"/>
+  </g>
+
+  <circle cx="138" cy="308" r="18" fill="#5865f2"/>
+  <text x="174" y="318" fill="#f5f8ff" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="30" font-weight="730">Live delivery</text>
+  <text x="138" y="361" fill="#91a6c0" font-family="Consolas,monospace" font-size="18">Actions #33040201783</text>
+  <line x1="138" y1="390" x2="728" y2="390" stroke="#2b3d5a"/>
+  <text x="138" y="446" fill="#a5b6ca" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="21">Research cards delivered</text>
+  <text x="724" y="454" fill="#ffffff" text-anchor="end" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="45" font-weight="820">16</text>
+  <text x="138" y="510" fill="#a5b6ca" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="21">Limit-safe Discord messages</text>
+  <text x="724" y="518" fill="#ffffff" text-anchor="end" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="45" font-weight="820">3</text>
+  <text x="138" y="574" fill="#a5b6ca" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="21">Webhook responses</text>
+  <text x="724" y="582" fill="#71edbd" text-anchor="end" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="31" font-weight="780">3 x HTTP 204</text>
+
+  <circle cx="872" cy="308" r="18" fill="#36c798"/>
+  <text x="908" y="318" fill="#f5f8ff" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="30" font-weight="730">Identical live replay</text>
+  <text x="872" y="361" fill="#91a6c0" font-family="Consolas,monospace" font-size="18">Actions #33040251479</text>
+  <line x1="872" y1="390" x2="1462" y2="390" stroke="#2d514d"/>
+  <text x="872" y="446" fill="#a5b6ca" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="21">Duplicate events suppressed</text>
+  <text x="1458" y="454" fill="#66eab8" text-anchor="end" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="45" font-weight="820">77</text>
+  <text x="872" y="510" fill="#a5b6ca" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="21">Notifications sent</text>
+  <text x="1458" y="518" fill="#66eab8" text-anchor="end" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="45" font-weight="820">0</text>
+  <text x="872" y="574" fill="#a5b6ca" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="21">Persisted state restored</text>
+  <text x="1458" y="582" fill="#66eab8" text-anchor="end" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="31" font-weight="780">YES</text>
+
+  <rect x="88" y="690" width="1424" height="134" rx="22" fill="#211711" stroke="#d78d42" stroke-width="2"/>
+  <text x="120" y="727" fill="#ffc982" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="19" font-weight="750">SECURITY CONTAINMENT / 27 AUG 2026</text>
+  <text x="120" y="763" fill="#e7edf7" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="19">Source artifacts were deleted after workflow.log exposed the webhook URL through httpx INFO logging.</text>
+  <text x="120" y="796" fill="#b9c7d8" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="18">Old webhook revoked; secret removed; scheduler paused. Facts above were verified before deletion. No credential appears here.</text>
+</svg>

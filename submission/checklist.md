@@ -1,6 +1,6 @@
 # Final Submission Checklist
 
-Snapshot date: **2026-08-27 WIB**. Checked items are repository facts verified
+Snapshot date: **2026-08-28 WIB**. Checked items are repository facts verified
 locally. Unchecked items require external credentials, future scheduler runs,
 final media, or portal access. Re-run every check immediately before submission.
 
@@ -55,8 +55,24 @@ final media, or portal access. Re-run every check immediately before submission.
 - [x] Total discovery failure is never shown as an all-clear.
 - [x] Discord and generic webhook payloads implemented.
 - [x] Dry-notify preview implemented.
-- [ ] `[BLOCKED: HUMAN ACTION REQUIRED]` Configure a real webhook in GitHub
-  Secrets and capture successful external delivery.
+- [x] `SECTORS_API_KEY` remains configured as a GitHub Actions Secret; its
+  value was not retrieved or printed.
+- [ ] `[BLOCKED: HUMAN ACTION REQUIRED AFTER REMEDIATION]` Create a new Discord
+  webhook and configure `DISCORD_WEBHOOK_URL`; the stale secret was deleted.
+- [x] Historical Discord delivery verified before containment in manual run
+  [`33040201783`](https://github.com/respramon/marketops-id/actions/runs/33040201783):
+  16 research cards across three limit-safe messages. Its affected source
+  artifact was later deleted under SEC-001 and is not current safe proof.
+- [x] Identical live replay
+  [`33040251479`](https://github.com/respramon/marketops-id/actions/runs/33040251479)
+  restored production state, suppressed 77 duplicates, and sent zero alerts.
+- [x] Partial-batch delivery behavior keeps the full alert set eligible for an
+  at-least-once retry; the original HTTP 400 and successful fixed retry are
+  recorded in `evidence/manual-live-qa.md`.
+- [ ] Commit, push, and publicly CI-verify the secret-redacting logger plus
+  pre-upload artifact scrub.
+- [ ] Run one controlled delivery with a new webhook; independently scan its
+  job log and every artifact file before restoring Notification to PASS.
 
 ## Dashboard and Artifacts
 
@@ -66,30 +82,39 @@ final media, or portal access. Re-run every check immediately before submission.
 - [x] Fixture mode and every fixture artifact are visibly labeled replay.
 - [x] JSON, standalone HTML, Markdown summary, notification preview, and run
   history can be generated.
-- [ ] Verify every source link in the final **live** run artifact.
+- [ ] Verify every source link in the final **scheduled live** run artifact.
 - [x] Local fixture dashboard and research-card images captured at presentation
   quality with the fixture-disclosure boundary documented in `assets/README.md`.
+- [x] Authenticated live reports were generated through public Actions; manual
+  trigger is disclosed and not presented as scheduled proof.
+- [ ] Generate a replacement clean live-delivery artifact after SEC-001. The
+  affected historical delivery artifacts were deleted.
 
 ## Quality Gates
 
-- [x] `ruff check .` passed locally on 2026-08-27.
-- [x] `mypy src` passed locally on 2026-08-27 for 13 source files.
+- [x] `ruff check .` passed locally on 2026-08-28.
+- [x] `mypy src` passed locally on 2026-08-28 for 14 source files.
 - [x] `pytest --cov=marketops --cov-report=term-missing` passed locally on
-  2026-08-27: 375 tests, 95.08% coverage.
+  2026-08-28: 400 tests, 95.62% coverage.
 - [x] Unit and integration coverage includes scoring, normalization,
   deduplication, persistence, retry/failure mapping, pipeline, CLI, notifier,
   rendering, and dashboard.
 - [x] CI workflow committed; public
-  [run `33036454974`](https://github.com/respramon/marketops-id/actions/runs/33036454974)
+  [run `33040157886`](https://github.com/respramon/marketops-id/actions/runs/33040157886)
   passed every quality gate, including installed-wheel smoke.
-- [x] Public logged-out CI capture saved as
-  `submission/assets/test-pass.png`; the separate local QA summary is
-  `submission/assets/test-pass.svg`.
+- [x] `submission/assets/test-pass.svg` and `test-pass-local.png` show the
+  current local 400-test / 95.62% result.
+- [x] `submission/assets/test-pass.png` remains the truthful public CI capture
+  for `33040157886` at 378 tests / 94.93% coverage.
+- [ ] Replace the public CI capture after the security remediation is pushed
+  and its new hosted run passes.
 
 ## Automation and Track 2 Proof
 
 - [x] Scheduled workflow committed with weekday `00:17 UTC` / approximately
   `07:17 WIB` cron.
+- [x] Scheduler disabled manually during SEC-001 containment.
+- [ ] Re-enable the scheduler only after a clean replacement webhook run.
 - [x] `workflow_dispatch` retained only for testing and clearly distinguished.
 - [x] SQLite fixture state restore/save verified across separate hosted runners:
   [first run](https://github.com/respramon/marketops-id/actions/runs/33036266340)
@@ -97,6 +122,10 @@ final media, or portal access. Re-run every check immediately before submission.
   [second](https://github.com/respramon/marketops-id/actions/runs/33036310666)
   restored them and suppressed all 16. This is QA, not Track 2 proof.
 - [x] Workflow uploads logs, run summary, HTML, JSON metadata, and history.
+- [x] Historical authenticated live `workflow_dispatch` QA exercised Sectors
+  ingestion, production-state restore, Discord delivery, and a quiet replay.
+  These runs are linked separately, affected artifacts are retired/deleted,
+  and none is counted as scheduler proof.
 - [x] GitHub step summary exposes run counters and artifact name.
 - [ ] Genuine scheduled run 1 recorded in `evidence/unattended-runs.md`.
 - [ ] Genuine scheduled run 2 recorded in `evidence/unattended-runs.md`.
@@ -114,6 +143,16 @@ final media, or portal access. Re-run every check immediately before submission.
   strict-pattern matches on 2026-08-27.
 - [x] Full Git-history scan returned zero strict-pattern matches at the latest
   pre-freeze checkpoint; repeat after the final freeze commit.
+- [x] SEC-001 recorded: five full webhook-URL occurrences were confirmed across
+  three public `workflow.log` artifacts.
+- [x] All three affected artifacts deleted irreversibly; sensitive local log
+  copies deleted; old webhook revoked with HTTP 204; stale Discord secret
+  deleted; scheduler disabled.
+- [x] Six remaining MarketOps artifacts (38 files) and 9/9 accessible job logs
+  scanned after containment with zero findings for the defined secret patterns.
+- [ ] Redacting formatter, quiet HTTP transport logging, and fail-on-redaction
+  artifact scrub committed and pushed.
+- [ ] Post-remediation public CI and clean replacement artifact verified.
 - [ ] If any secret was committed: stop, revoke and rotate it, clean history as
   appropriate before submission, and follow the official post-freeze exception
   if already submitted.
@@ -132,13 +171,19 @@ final media, or portal access. Re-run every check immediately before submission.
 - [x] `submission/assets/p1-card.png` captured from local sanitized replay.
 - [ ] `submission/assets/actions-history.png` captured from real Actions.
 - [ ] `submission/assets/scheduled-run.png` captured from a real schedule run.
-- [ ] `submission/assets/discord-result.png` captured from real delivery.
-- [x] `submission/assets/test-pass.png` captured from successful public CI;
-  `test-pass.svg` retains the local QA summary.
+- [x] `submission/assets/discord-result.png` / `.svg` now disclose historical
+  manual QA and SEC-001 containment; they are **not current safe delivery proof**.
+- [ ] Replace or supplement the historical Discord summary with a clean
+  post-remediation result before final video assembly.
+- [x] Local test assets refreshed for 400 tests / 95.62%; public
+  `test-pass.png` remains the prior 378-test CI capture until replacement CI.
 - [x] `submission/assets/architecture.png` generated and reviewed.
-- [x] 57-second teaser script, storyboard, and captions prepared.
-- [x] 2:48 judging script, storyboard, and captions prepared.
+- [x] 57-second teaser script and storyboard updated for SEC-001 status.
+- [x] 2:48 judging script and storyboard updated for SEC-001 status.
+- [ ] Regenerate both caption files to match the revised incident-aware
+  narration before final assembly.
 - [x] Assembly and truth-labeling instructions prepared.
+- [ ] Rebuild both no-voice visual timelines from the incident-aware storyboard.
 - [ ] Record and assemble teaser; verify duration is at most 60 seconds.
 - [ ] Record and assemble judging video; verify duration is at most 3:00.
 - [ ] Watch both final exports with audio and captions from start to finish.
@@ -171,9 +216,14 @@ final media, or portal access. Re-run every check immediately before submission.
   run creates notifiable cards and second run sends/renders zero while
   suppressing duplicates.
 - [ ] Run `marketops doctor`.
-- [ ] Run authenticated `marketops run --mode live --dry-notify` smoke test.
+- [x] Authenticated manual live dry-notify smoke test completed in public run
+  [`33039796607`](https://github.com/respramon/marketops-id/actions/runs/33039796607).
+- [ ] Re-run authenticated live dry-notify only if needed at final freeze; avoid
+  spending credits merely to repeat an unchanged passing check.
 - [ ] Verify final CI is green and all public links work anonymously.
 - [ ] Run final security and content audit.
+- [ ] Verify a newly issued webhook never appears in console logs, downloaded
+  artifacts, screenshots, or video frames.
 - [ ] Commit final version, push, tag the submission version, and verify a clean
   Git worktree.
 - [ ] Decide whether to disable production scheduling at freeze; document the
@@ -185,8 +235,9 @@ final media, or portal access. Re-run every check immediately before submission.
 
 ## Current Human Gate
 
-`[BLOCKED: HUMAN ACTION REQUIRED]` Add `SECTORS_API_KEY` and either
-`DISCORD_WEBHOOK_URL` or `GENERIC_WEBHOOK_URL` as repository Actions Secrets.
-The public repository, CI, and fixture workflow are already operational; this
-single account-owner action unlocks live smoke testing, scheduled-run evidence,
-webhook evidence, and final recording.
+`[BLOCKED: SECURITY REMEDIATION + HUMAN ACTION REQUIRED]` First publish and
+CI-verify the two-layer SEC-001 fix. Then the account owner must create a new
+Discord webhook and store it only as a GitHub Secret. After one clean manual
+delivery artifact is inspected, re-enable the scheduler and collect three later
+genuine `schedule` events. Citizenship/team declarations, final video
+recording/upload, social post, and portal submission still require the owner.

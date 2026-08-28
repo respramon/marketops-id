@@ -7,6 +7,8 @@ workflow configuration screen for live scheduled-run proof.
 ## Before Recording
 
 1. Start from the matching script and captions in this directory.
+   The existing SRT files predate the SEC-001 narration update and must be
+   regenerated before assembly.
 2. Inspect every source screen for browser profiles, API keys, webhook URLs,
    private repositories, hidden tabs, and notification previews that could be
    mistaken for a real delivery.
@@ -27,8 +29,10 @@ workflow configuration screen for live scheduled-run proof.
 |---|---|
 | Fixture dashboard, report, replay, or notification preview | `SANITIZED HISTORICAL REPLAY - NOT LIVE MARKET DATA` |
 | Manual GitHub Actions dispatch | `Manual test — not scheduled-run proof` |
-| Workflow YAML or architecture diagram before a real schedule run | `Configured locally — scheduled-run evidence pending` |
+| Workflow YAML or architecture diagram before a real schedule run | `Configured locally — currently disabled; scheduled-run evidence pending` |
 | Dry-notify preview | `Preview only — no external delivery` |
+| Historical Discord delivery summary | `SEC-001 CONTAINED — NOT CURRENT SAFE-DELIVERY PROOF`, `MANUAL QA`, and `NOT SCHEDULED-RUN PROOF` |
+| Post-remediation manual delivery | `CLEAN MANUAL QA — NOT SCHEDULED-RUN PROOF`; show the independently scanned artifact result |
 | Real schedule artifact | Show the actual `schedule` trigger, `live` mode, run ID, and timestamp; do not add an unsupported claim. |
 | Real webhook result | `Delivered` only when the run artifact and destination visibly confirm it; otherwise state the actual failure/zero-delivery reason. |
 
@@ -48,12 +52,15 @@ workflow configuration screen for live scheduled-run proof.
 
 ## Evidence Gates Before Publishing
 
-- `SECTORS_API_KEY`: `[BLOCKED]` until supplied by the account owner through a
-  local ignored environment file or GitHub Secret; never record or publish it.
-- Webhook delivery: `[BLOCKED]` until a configured secret produces a real,
-  reviewable delivery. A dry-notify card is not delivery evidence.
-- Genuine GitHub Actions scheduled runs: `[BLOCKED]` until three real `schedule`
-  events have been recorded in `evidence/unattended-runs.md`.
+- `SECTORS_API_KEY`: `[PASS]` as a GitHub Secret; authenticated live Actions QA
+  succeeded. Never record or publish its value.
+- Webhook delivery: `[BLOCKED]`. Run `33040201783` historically delivered 16
+  cards, but its artifact contained the old webhook URL and was deleted. The
+  webhook is revoked, its secret is removed, and a clean replacement run is
+  required after remediation.
+- Genuine GitHub Actions scheduled runs: `[BLOCKED]`. The scheduler is disabled
+  during recovery, genuine count is zero, and three later `schedule` events
+  must be recorded in `evidence/unattended-runs.md` after safe re-enablement.
 - Public repository: `[PASS]` at <https://github.com/respramon/marketops-id>,
   verified logged out on 2026-08-27.
 - Public/unlisted video links: `[PENDING]` until uploaded and accessible without
@@ -61,3 +68,25 @@ workflow configuration screen for live scheduled-run proof.
 
 If any gate is still blocked, retain the pending disclosure in the judging
 video and do not claim completion of that external step.
+
+## Manual Live QA Shot Sequence
+
+For a compact incident-aware engineering narrative, these public run metadata
+pages may be shown in order:
+
+1. live dry-notify run `33039796607` for authenticated Sectors ingestion;
+2. delivery attempt `33039918857` and its explicit Discord HTTP 400;
+3. fix commit `3f3bed7` plus green CI run `33040157886`;
+4. historical delivery run `33040201783`: 16 cards, three messages, plus a
+   visible disclosure that its affected artifact was deleted under SEC-001;
+5. identical replay `33040251479`: 77 duplicates, zero notifications.
+
+Keep `workflow_dispatch — manual live QA` visible throughout. This sequence is
+historical technical-execution and incident-containment context only. It cannot
+replace a clean post-remediation delivery or the three required `schedule`
+shots. Never imply that the deleted artifacts remain downloadable.
+
+Before final assembly, replace the historical delivery segment with the new
+public CI result, a clean manually delivered notification, and a separately
+scanned artifact. Only then re-enable the scheduler and capture the three later
+scheduled runs.

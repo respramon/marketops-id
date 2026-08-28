@@ -2,13 +2,16 @@
 
 ## Track 2 Qualification
 
-**Status: `[BLOCKED: HUMAN ACTION REQUIRED]`**
+**Status: `[BLOCKED: SECURITY REMEDIATION + HUMAN ACTION REQUIRED]`**
 
-As of 2026-08-27, no genuine scheduled run has been observed. The three entries
+As of 2026-08-28, no genuine scheduled run has been observed. The three entries
 below are intentionally unfilled. They must be populated from real `schedule`
-runs; manual or fixture executions must not be substituted. An authenticated
-Sectors key and a real webhook destination are still required to produce live
-delivery evidence.
+runs; manual or fixture executions must not be substituted. The scheduler is
+disabled, the old Discord webhook is revoked, and its GitHub Secret was removed
+after SEC-001. Before the first qualifying run can occur, the remediation must
+be published and CI-verified, a replacement webhook must pass a clean manual
+test, and the scheduler must be re-enabled. Three later weekday firings plus
+evidence capture are still required.
 
 ## Genuine Scheduled Run 1
 
@@ -130,9 +133,21 @@ This proves SQLite state survived a hosted-runner restart and that the duplicate
 policy suppresses the full notifiable set. It does **not** prove schedule
 triggering, live Sectors authentication, or webhook delivery.
 
+## Non-Qualifying Manual Live and Delivery QA
+
+Authenticated live Sectors ingestion and historical Discord delivery are
+documented separately in [`manual-live-qa.md`](manual-live-qa.md). The delivery
+run sent 16 research cards across three messages and its replay suppressed 77
+duplicates, but affected artifacts were deleted after the webhook URL leak was
+confirmed. Both were `workflow_dispatch`, neither fills a genuine scheduled
+slot, and neither replaces a clean post-remediation delivery artifact.
+
 ## One Required Human Action
 
-Add `SECTORS_API_KEY` and one webhook secret to the repository's GitHub Actions
-Secrets, then leave the weekday schedule active until three runs appear; replace
-all blocked fields above directly from their JSON artifacts and public run
-pages. Never put either secret into this repository or an evidence artifact.
+After the remediation is committed, pushed, and CI-verified, create and store a
+new Discord webhook through the account owner. Inspect one controlled manual
+delivery artifact, then re-enable the weekday schedule. After three genuine
+`schedule` runs appear, copy each blocked field above directly from its JSON
+artifact and public run page. Capture the Actions history and one run detail
+without exposing any secret, and keep all manual runs outside the qualification
+slots.
