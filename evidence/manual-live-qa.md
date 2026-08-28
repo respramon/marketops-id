@@ -56,7 +56,8 @@ artifact IDs listed above. Containment completed as follows:
 - sensitive local `workflow.log` copies were deleted;
 - revocation of the old Discord webhook returned HTTP 204;
 - the stale `DISCORD_WEBHOOK_URL` GitHub Secret was deleted;
-- the scheduler was disabled manually.
+- the scheduler was disabled manually (re-enabled on 2026-08-28 after the
+  remediation was verified).
 
 The six remaining MarketOps artifacts were audited across 38 files with zero
 Discord URL/path, named-secret assignment, Authorization credential,
@@ -69,8 +70,11 @@ not undo the deleted-artifact disclosure.
 Public CI run [`33040157886`](https://github.com/respramon/marketops-id/actions/runs/33040157886)
 predates SEC-001 remediation and passed Ruff, strict mypy, installed-wheel
 smoke, and 378 tests at 94.93% coverage. Current local QA on 2026-08-28 passes
-Ruff, mypy across 14 source files, and 400 tests at 95.62% coverage. A new
-public CI run and clean delivery artifact are still required.
+Ruff, mypy across 14 source files, and 400 tests at 95.62% coverage. Public CI
+run [`33153711435`](https://github.com/respramon/marketops-id/actions/runs/33153711435) then verified the pushed remediation, and delivery run
+[`33155463943`](https://github.com/respramon/marketops-id/actions/runs/33155463943) produced the clean replacement artifact: 18
+cards across four Discord batches, zero errors, and no webhook material in the
+artifact or job log.
 
 ## What This Proves—and Does Not Prove
 

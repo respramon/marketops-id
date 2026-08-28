@@ -247,6 +247,7 @@ otherwise.
 - **Consequence:** Artifact upload is no longer allowed to rely on console
   masking or application-level error hygiene. The old webhook and affected
   artifacts were revoked/deleted, the Discord secret was removed, and the
-  scheduler is disabled. Notification and scheduling stay blocked until this
-  decision is committed, pushed, CI-verified, exercised with a new webhook,
-  and the replacement artifact is confirmed clean.
+  scheduler was disabled during containment. This decision was then committed
+  (`2e51bd8`), pushed, CI-verified (run 33153711435), and exercised with a new webhook
+  in delivery run 33155463943, whose replacement artifact was confirmed clean,
+  so notification and scheduling are unblocked.

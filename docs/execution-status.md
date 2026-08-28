@@ -92,18 +92,18 @@ schedule-triggered runs, independent of this green code checkpoint.
 
 ## Automation
 
-BLOCKED
+PARTIAL
 
 The production workflow has both `workflow_dispatch` for tests and a weekday
 `17 0 * * 1-5` schedule, equivalent to approximately 07:17 WIB. Scheduled
 cycles select `live` mode, restore SQLite state, write structured artifacts,
 save state, and never auto-commit runtime data.
 
-The scheduler is currently **disabled manually** as containment for SEC-001.
-The redacting logger and pre-upload artifact scrub are now committed, pushed,
-and CI-verified (`2e51bd8`; CI run 33153711435). It must not be re-enabled
-until that fix is also exercised with a newly issued webhook in a clean manual
-run.
+The redacting logger and pre-upload artifact scrub are committed, pushed, and
+CI-verified (`2e51bd8`; CI run 33153711435) and have now been exercised with a
+newly issued webhook in a clean manual run, so the scheduler was **re-enabled**
+on 2026-08-28 and the workflow is active again. No genuine `schedule` event has
+fired yet; the next weekday cron is Monday 2026-08-31, 07:17 WIB.
 
 Two public manual fixture runs verified the hosted execution path without
 claiming Track 2 qualification. Run
@@ -128,16 +128,26 @@ were deleted after their `workflow.log` files were found to contain the full
 Discord webhook URL. Public run metadata and job pages remain, but the deleted
 artifacts are no longer available as downloadable submission evidence.
 
+After remediation, manual run [`33155463943`](https://github.com/respramon/marketops-id/actions/runs/33155463943) (mode `live`,
+`dry_notify=false`) delivered 18 cards across four Discord batches with zero
+errors, and its uploaded artifact and job log contain no webhook material (the
+redaction scanner reports zero findings and the fail-closed `Enforce artifact
+safety` gate passed). Fixture delivery run [`33155144455`](https://github.com/respramon/marketops-id/actions/runs/33155144455) was
+the first clean hosted verification but posted nothing because its dedup state
+was already current. Both used `workflow_dispatch`; neither is claimed as
+schedule-triggered Track 2 proof.
+
 ## Unattended Run Evidence
 
 BLOCKED
 
-No genuine GitHub Actions `schedule` run exists yet. The scheduler is disabled,
-the old webhook is revoked, and the Discord GitHub Secret was removed during
-incident containment. Evidence collection cannot begin until remediation and
-a clean replacement delivery are verified, after which three new real
-schedule-triggered live executions and their matching artifacts/screenshots
-are still required. Manual live and fixture runs remain non-qualifying.
+No genuine GitHub Actions `schedule` run exists yet. As of 2026-08-28 the new
+webhook is stored as a GitHub Secret, the SEC-001 fix is CI-verified and was
+cleanly exercised by manual delivery run 33155463943, and the scheduler is
+re-enabled, so evidence collection can begin at the next weekday cron (Monday
+2026-08-31, 07:17 WIB). Three genuine schedule-triggered live executions and
+their matching artifacts/screenshots are still required. Manual live and
+fixture runs remain non-qualifying.
 
 ## Dashboard
 
@@ -150,17 +160,19 @@ captures and are labeled accordingly.
 
 ## Notification
 
-BLOCKED
+PASS
 
-Manual live run `33040201783` historically delivered 16 cards across three
-messages, and replay `33040251479` delivered zero after suppressing 77
-duplicates. That delivery path later produced SEC-001: `httpx` INFO output put
-the full webhook URL into an uploaded `workflow.log`. The affected artifacts
-were deleted, the old webhook was revoked with HTTP 204, local sensitive logs
-were deleted, and the stale GitHub Secret was removed. No current Discord sink
-is configured. Notification returns to PASS only after the two-layer
-remediation is published and a new webhook completes a clean artifact-verified
-delivery test.
+Manual live run [`33155463943`](https://github.com/respramon/marketops-id/actions/runs/33155463943) (2026-08-28, `workflow_dispatch`,
+mode `live`) delivered 18 cards across four Discord batches with zero errors
+using a newly issued webhook stored only as a GitHub Secret. The uploaded
+artifact and the job log contain no webhook material: the redaction scanner
+reports zero findings, no Discord webhook URL shape is present, and the
+fail-closed `Enforce artifact safety` gate passed. This confirms the SEC-001
+leak path (`httpx` INFO logging the webhook URL) is closed on a real delivery.
+The prior leak stays fully contained: the three affected artifacts were
+deleted, the old webhook was revoked (HTTP 204), local sensitive logs were
+removed, and the stale Secret was rotated out. This delivery used
+`workflow_dispatch` and is not claimed as schedule-triggered Track 2 proof.
 
 ## README
 
@@ -172,13 +184,15 @@ and non-trading positioning.
 
 ## Security Audit
 
-BLOCKED
+PASS
 
 Repository scans did not find a committed production credential, but that
 scope missed generated workflow artifacts. SEC-001 confirms that three public
-artifacts contained the full Discord webhook URL. Containment is complete;
-remediation is committed, pushed, and public-CI-verified (`2e51bd8`; CI run
-33153711435), but not yet safely exercised with a newly issued webhook.
+artifacts contained the full Discord webhook URL. Containment is complete and
+remediation is finished: the two-layer fix is committed, pushed, and
+public-CI-verified (`2e51bd8`; CI run 33153711435) and was safely exercised by
+manual delivery run 33155463943, whose uploaded artifact and job log the
+redaction scanner clears with zero findings.
 All three affected artifact IDs now resolve absent/404. A post-containment scan
 of six remaining MarketOps artifacts (38 files) and 9/9 accessible job logs
 returned zero findings for the defined credential patterns.
@@ -193,9 +207,10 @@ Local dashboard, P1 card, architecture, public CI, and hosted-deduplication QA
 captures are present. Visual timeline MP4s, scripts, captions, storyboard, and
 assembly instructions are present, but the existing MP4s/captions predate
 SEC-001 and require regeneration. Scheduled Actions history/detail remain
-intentionally pending until genuine schedule events exist. The old
-artifact-derived Discord summary is historical and must not be used as current
-safe-delivery proof; a replacement capture is required after remediation.
+intentionally pending until genuine schedule events exist. Manual live delivery run 33155463943 (2026-08-28) is the current safe-delivery
+evidence: 18 cards across four Discord batches, zero errors, and a webhook-free
+artifact verified by the redaction scanner. The old artifact-derived Discord
+summary remains historical only.
 
 ## Submission Package
 
@@ -206,19 +221,25 @@ scripts, captions, storyboard, and video assembly guide are present. The public
 repository URL is inserted. Public video URLs, genuine scheduled-run evidence,
 and portal entry still require external actions. Authenticated live Sectors QA
 remains historical engineering evidence. Current safe webhook delivery and
-artifact evidence must be regenerated after SEC-001 remediation.
+artifact evidence now exist (manual live run 33155463943); genuine
+scheduled-run evidence, public video URLs, and portal entry remain external
+actions.
 
 ## Current Blocker
 
-`[BLOCKED: HUMAN ACTION REQUIRED]` SEC-001 is contained and its two-layer fix
-is now committed, pushed, and public-CI-verified (`2e51bd8`; CI run
-33153711435), but there is still no current Discord webhook secret, and the
-scheduler is disabled. Genuine schedule count remains zero.
+`[BLOCKED: AWAITING SCHEDULED RUNS]` SEC-001 remediation is complete: the
+two-layer fix is committed, pushed, public-CI-verified (`2e51bd8`; CI run
+33153711435), and safely exercised by clean manual delivery run 33155463943
+(18 cards, zero errors, webhook-free artifact). A new webhook is stored as a
+GitHub Secret and the weekday scheduler is re-enabled. The remaining gap is
+external: no genuine `schedule`-triggered run has fired yet (next: Monday
+2026-08-31, 07:17 WIB), and the judging video and portal entry are pending.
 
 ## Next Action
 
-Create a new Discord webhook through the account owner, store it only in GitHub
-Secrets, perform and inspect one safe manual delivery, and only then re-enable
-the weekday scheduler. Three later genuine `schedule` runs must still be captured
-before recording the final judging video. The logging/artifact remediation is
-already pushed and public-CI-verified (`2e51bd8`; CI run 33153711435).
+Let the re-enabled weekday scheduler run and capture three genuine
+`schedule`-triggered live executions with their artifacts and screenshots
+(first fire Monday 2026-08-31, 07:17 WIB), spot-checking each artifact for
+webhook cleanliness. Then record the judging video and complete portal entry.
+The logging/artifact remediation and one clean manual live delivery
+(run 33155463943) are already done and verified.

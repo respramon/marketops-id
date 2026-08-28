@@ -54,13 +54,15 @@ workflow configuration screen for live scheduled-run proof.
 
 - `SECTORS_API_KEY`: `[PASS]` as a GitHub Secret; authenticated live Actions QA
   succeeded. Never record or publish its value.
-- Webhook delivery: `[BLOCKED]`. Run `33040201783` historically delivered 16
-  cards, but its artifact contained the old webhook URL and was deleted. The
-  webhook is revoked, its secret is removed, and a clean replacement run is
-  required after remediation.
-- Genuine GitHub Actions scheduled runs: `[BLOCKED]`. The scheduler is disabled
-  during recovery, genuine count is zero, and three later `schedule` events
-  must be recorded in `evidence/unattended-runs.md` after safe re-enablement.
+- Webhook delivery: `[PASS]`. Run `33155463943` delivered 18 cards across four
+  Discord batches with zero errors using a newly issued webhook, and its
+  uploaded artifact and job log contain no webhook material. The earlier run
+  `33040201783` remains historical only: its artifact exposed the old webhook
+  URL and was deleted, and that webhook is revoked.
+- Genuine GitHub Actions scheduled runs: `[BLOCKED]`. The scheduler is
+  re-enabled, but the genuine count is still zero; three later `schedule`
+  events must be recorded in `evidence/unattended-runs.md` (first possible
+  fire: Monday 2026-08-31, 07:17 WIB).
 - Public repository: `[PASS]` at <https://github.com/respramon/marketops-id>,
   verified logged out on 2026-08-27.
 - Public/unlisted video links: `[PENDING]` until uploaded and accessible without

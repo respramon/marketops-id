@@ -37,9 +37,11 @@ own QA segment only when its non-qualifying label stays visible.
 - `assets/dashboard.png` and `assets/p1-card.png` are local fixture captures.
 - `assets/actions-history.png` and `assets/scheduled-run.png` remain placeholders
   until replaced by genuine `schedule` evidence. They must not appear as proof.
-- `assets/discord-result.png` is now a historical, incident-contained summary.
+- `assets/discord-result.png` is a historical, incident-contained summary.
   Keep **SEC-001 contained**, **not current safe-delivery proof**, **manual QA**,
-  and **not scheduled proof** legible. Replace it after clean revalidation.
+  and **not scheduled proof** legible. Current safe-delivery proof is run
+  `33155463943` (18 cards, zero errors, webhook-free artifact); capture a
+  replacement still image from it before the final cut.
 - `assets/test-pass.png` records successful public push-triggered CI
   `33040157886` at 378 tests / 94.93%; it predates remediation and is not
   scheduled-run proof. `assets/test-pass.svg` and `test-pass-local.png` show the

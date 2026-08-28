@@ -9,7 +9,7 @@ operator's workstation.
 
 ## Result
 
-**BLOCKED pending verified remediation of SEC-001.**
+**PASS. SEC-001 is remediated and the fix is verified end to end.**
 
 The source tree and Git history did not contain a committed production
 credential at the earlier checkpoint. That result did **not** cover generated
@@ -18,11 +18,13 @@ three publicly downloadable `workflow.log` artifacts. The affected artifacts
 and sensitive local copies were deleted, the old webhook was revoked, the
 stale GitHub secret was deleted, and the scheduler was disabled manually.
 
-Those actions contain the known credential. They do not make the old artifacts
-valid evidence, and they do not complete the remediation. Notification,
-scheduled automation, and the final security gate remain blocked until the
-two-layer logging/artifact fix is committed and pushed, public CI passes, a new
-webhook is configured, and a clean replacement delivery run is inspected.
+Those actions contained the known credential; they did not by themselves make
+the old artifacts valid evidence. The remediation is now complete: the
+two-layer logging/artifact fix is committed and pushed (`2e51bd8`), public CI
+run 33153711435 passed, a new webhook is configured as a GitHub Secret, and
+clean replacement delivery run 33155463943 was inspected. Notification and the
+security gate are therefore PASS. Scheduled automation is re-enabled but still
+awaits its first genuine `schedule` event (Monday 2026-08-31, 07:17 WIB).
 
 Post-containment verification confirmed that all three affected artifact IDs
 are absent/404. The six remaining MarketOps artifacts were scanned across 38
@@ -31,10 +33,13 @@ credential, GitHub/AWS token, or private-key findings. All 9 of 9 accessible
 job logs also returned zero findings. This bounds the known incident; it does
 not erase the confirmed exposure in the deleted artifacts.
 
-The uncommitted remediation passes local Ruff, mypy across 14 source files,
-and 400 tests at 95.62% coverage. Local success reduces regression risk but
-does not replace review of the pushed workflow, hosted CI, or a newly generated
-artifact.
+The remediation passes local Ruff, mypy across 14 source files, and 400 tests
+at 95.62% coverage, and that same commit passed public CI run 33153711435
+(including the installed-wheel gate). The pushed workflow and a newly generated
+artifact were then reviewed directly: delivery run 33155463943 posted 18 cards
+across four Discord batches with zero errors, and its uploaded artifact and job
+log contain no Discord webhook URL shape, with the redaction scanner reporting
+zero findings and the fail-closed artifact-safety gate passing.
 
 ## Security Findings
 
@@ -42,7 +47,7 @@ artifact.
 
 - **Rule ID:** `SEC-001` (secret logging and artifact-publication boundary)
 - **Severity:** **High**
-- **Status:** **Contained; remediation pending verification**
+- **Status:** **Resolved; remediation verified on 2026-08-28**
 - **Location:** Historical commit `3f3bed7`,
   `src/marketops/cli.py::_configure_logging` lines 39-52, where the `httpx`
   logger inherited INFO logging; and `.github/workflows/marketops.yml` lines
@@ -66,11 +71,12 @@ artifact.
   could have obtained the webhook capability and posted unauthorized messages
   to its destination until revocation. No conclusion is made here about
   whether an unknown party downloaded it or abused it.
-- **Fix:** The current uncommitted remediation adds a secret-redacting log
-  formatter, lowers `httpx`/`httpcore` transport logging below INFO, and adds a
-  pre-upload artifact scrub that fails the workflow if it has to redact a
-  credential. These controls must still be committed, pushed, tested in public
-  CI, and exercised by a clean replacement run.
+- **Fix:** Commit `2e51bd8` adds a secret-redacting log formatter, lowers
+  `httpx`/`httpcore` transport logging below INFO, and adds a pre-upload
+  artifact scrub that fails the workflow if it has to redact a credential.
+  These controls are committed, pushed, verified by public CI run 33153711435,
+  and exercised by clean replacement delivery run 33155463943, whose artifact
+  and job log are free of webhook material.
 - **Mitigation/containment:** The affected public artifacts were deleted; local
   sensitive `workflow.log` copies were deleted; revocation of the old Discord
   webhook returned HTTP 204; `DISCORD_WEBHOOK_URL` was removed from GitHub
@@ -86,12 +92,12 @@ artifact.
 | Check | Result | Evidence |
 |---|---|---|
 | Environment-only credentials | PASS | `Settings` reads credential variables as `SecretStr`; no production value is intentionally stored in source. |
-| GitHub Secret configuration | BLOCKED | `SECTORS_API_KEY` remains environment-managed. The stale `DISCORD_WEBHOOK_URL` secret was deliberately deleted after SEC-001; a replacement must not be added until the remediation is verified. |
+| GitHub Secret configuration | PASS | `SECTORS_API_KEY` remains environment-managed. The stale `DISCORD_WEBHOOK_URL` secret was deleted after SEC-001; a newly issued webhook was stored as a repository secret on 2026-08-28 only after the remediation was CI-verified. Its value was never retrieved or printed. |
 | Ignore policy | PASS | `.env`, keys, databases, logs, artifacts, cache directories, and browser-test output are ignored. `.env.example` contains empty placeholders only. |
-| Working-tree and Git-history scan | PASS, limited scope | Earlier strict scans found no committed production credential. Generated Actions artifacts are a separate publication boundary and caused SEC-001. Repeat both repository and artifact scans after remediation and before freeze. |
+| Working-tree and Git-history scan | PASS | Earlier strict scans found no committed production credential. Generated Actions artifacts are a separate publication boundary and caused SEC-001; the post-remediation artifact from run 33155463943 was rescanned with zero findings. Repeat both scans immediately before freeze. |
 | Post-containment artifact/log scan | PASS for remaining material | The three affected artifact IDs are absent/404. Six remaining artifacts (38 files) and 9/9 accessible job logs produced zero findings across the defined credential patterns. |
-| API request security | PASS | The Sectors base URL is fixed to HTTPS; its key is sent in the verified `Authorization` header. No Sectors-key exposure is part of the confirmed finding; repeat artifact scanning after the replacement run. |
-| Webhook secrecy | BLOCKED | The old webhook is revoked and removed; the redacting formatter and artifact scrub are now committed, pushed, and CI-verified (run 33153711435). A new webhook has not yet been issued or safely exercised. |
+| API request security | PASS | The Sectors base URL is fixed to HTTPS; its key is sent in the verified `Authorization` header. No Sectors-key exposure is part of the confirmed finding, and the replacement live run's artifact was rescanned with zero findings. |
+| Webhook secrecy | PASS | The old webhook is revoked and removed. The redacting formatter and artifact scrub are committed, pushed, and CI-verified (run 33153711435), and a newly issued webhook completed live delivery run 33155463943 (18 cards, zero errors) with no webhook material in the uploaded artifact or job log. |
 | Untrusted source links | PASS | Provenance URLs accept only absolute HTTP(S) links with a host and reject control characters, `javascript:`, `data:`, and relative URLs. |
 | HTML rendering | PASS | Jinja autoescaping is enabled. External text is rendered as text; source links carry `rel="noopener noreferrer"`. |
 | Dashboard hardening | PASS | Read-only routes, Trusted Host allowlist, disabled interactive docs by default, script-free CSP, security headers, and no-store cache headers are tested. |
@@ -125,20 +131,26 @@ Verified against the official GitHub release API on 2026-08-27:
 
 ## Required Recovery Sequence
 
-1. Commit and push the redacting logger plus pre-upload artifact scrub.
-2. Run the full local gates and public CI; inspect output without printing any
-   candidate secret values.
-3. Create a new Discord webhook and store it only as the GitHub
-   `DISCORD_WEBHOOK_URL` secret.
-4. Run a controlled manual delivery, download its artifact privately, and
-   verify that the webhook URL is absent while the expected redaction gate
-   reports clean.
-5. Re-enable the scheduler only after the safe live path is verified.
-6. Start collecting three new genuine `schedule` runs. Old manual runs cannot
-   fill those slots, and their deleted artifacts cannot be cited as current
-   downloadable evidence.
-7. Repeat the working-tree, index, Git-history, runtime-log, artifact, and media
-   scans immediately before freeze.
+1. **Done** (`2e51bd8`) - committed and pushed the redacting logger plus
+   pre-upload artifact scrub.
+2. **Done** - full local gates (Ruff, mypy, 400 tests at 95.62%) and public CI
+   run 33153711435 passed; output was inspected without printing candidate
+   secret values.
+3. **Done** - a new Discord webhook was created and stored only as the GitHub
+   `DISCORD_WEBHOOK_URL` secret on 2026-08-28.
+4. **Done** - controlled manual delivery run 33155463943 posted 18 cards with
+   zero errors; its artifact was downloaded privately and verified free of any
+   webhook URL, with the redaction scanner reporting zero findings and the
+   fail-closed artifact-safety gate passing. Fixture run 33155144455 was the
+   first clean hosted check but delivered nothing, as its dedup state was
+   already current.
+5. **Done** - the scheduler was re-enabled on 2026-08-28 after the safe live
+   path was verified.
+6. **Pending** - collect three new genuine `schedule` runs (first fire Monday
+   2026-08-31, 07:17 WIB). Old manual runs cannot fill those slots, and their
+   deleted artifacts cannot be cited as current downloadable evidence.
+7. **Pending** - repeat the working-tree, index, Git-history, runtime-log,
+   artifact, and media scans immediately before freeze.
 
 ## Non-Findings Clarification
 

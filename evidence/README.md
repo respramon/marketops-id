@@ -6,19 +6,23 @@ from qualifying Track 2 evidence.
 
 ## Qualification Status
 
-`[BLOCKED: SECURITY REMEDIATION + HUMAN ACTION REQUIRED]`
+`[BLOCKED: AWAITING SCHEDULED RUNS]`
 
 The public repository and authenticated Sectors integration were validated.
 Historical manual Discord delivery also occurred, but three of its related
 public artifacts exposed the old webhook URL in `workflow.log`. The affected
 artifacts were deleted, the webhook was revoked, the Discord GitHub Secret was
-removed, and the scheduler was disabled. Notification and artifact publication
-must be revalidated after SEC-001 remediation.
+removed, and the scheduler was disabled during containment.
+
+Notification and artifact publication have since been revalidated: the SEC-001
+remediation is committed, pushed, and CI-verified (run [`33153711435`](https://github.com/respramon/marketops-id/actions/runs/33153711435)), and
+delivery run [`33155463943`](https://github.com/respramon/marketops-id/actions/runs/33155463943) posted 18 cards across four Discord
+batches with zero errors and no webhook material in its artifact or job log.
+The scheduler was re-enabled on 2026-08-28.
 
 The repository does not yet contain any genuine scheduled GitHub Actions run.
-After remediation is committed/pushed/CI-verified, a new webhook passes a clean
-manual delivery, and the schedule is re-enabled, let three separate `schedule`
-executions complete. Then populate the protected placeholders in
+Let three separate `schedule` executions complete (first possible fire: Monday
+2026-08-31, 07:17 WIB). Then populate the protected placeholders in
 [`unattended-runs.md`](unattended-runs.md) from their public run pages and JSON
 artifacts. Do not promote any `workflow_dispatch` result into those slots.
 

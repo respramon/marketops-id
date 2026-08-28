@@ -2,16 +2,18 @@
 
 ## Track 2 Qualification
 
-**Status: `[BLOCKED: SECURITY REMEDIATION + HUMAN ACTION REQUIRED]`**
+**Status: `[BLOCKED: AWAITING SCHEDULED RUNS]`**
 
 As of 2026-08-28, no genuine scheduled run has been observed. The three entries
 below are intentionally unfilled. They must be populated from real `schedule`
-runs; manual or fixture executions must not be substituted. The scheduler is
-disabled, the old Discord webhook is revoked, and its GitHub Secret was removed
-after SEC-001. Before the first qualifying run can occur, the remediation must
-be published and CI-verified, a replacement webhook must pass a clean manual
-test, and the scheduler must be re-enabled. Three later weekday firings plus
-evidence capture are still required.
+runs; manual or fixture executions must not be substituted.
+
+Every precondition is now met: the SEC-001 remediation is published and
+CI-verified (run 33153711435), a replacement webhook passed clean manual delivery run
+33155463943 (18 cards, zero errors, webhook-free artifact), and the scheduler
+was re-enabled on 2026-08-28. The first possible qualifying firing is Monday
+2026-08-31 at 07:17 WIB. Three weekday firings plus evidence capture are still
+required.
 
 ## Genuine Scheduled Run 1
 

@@ -64,17 +64,17 @@ trail.
 
 ## Qualification Evidence Status
 
-`[BLOCKED: SECURITY REMEDIATION + HUMAN ACTION REQUIRED]`
+`[BLOCKED: AWAITING GENUINE SCHEDULED RUNS]`
 
 The local pipeline, public CI, artifact upload, cross-run state restore,
-and authenticated Sectors calls are verified. Notification, artifact security,
-and automation are blocked: the old webhook is revoked, its secret is deleted,
-and the scheduler is disabled until the two-layer remediation passes public CI
-and a clean replacement delivery. Every public production QA run so far also
-has event `workflow_dispatch`; a manual run is not enough for Track 2. After
-security recovery, the owner must capture at least three later genuine GitHub
-Actions runs whose event is `schedule`, along with clean logs, artifacts,
-timestamps, state restoration, and notification results. Those real entries belong in
+authenticated Sectors calls, notification, and artifact security are verified.
+SEC-001 is remediated: the two-layer fix passed public CI and a newly issued
+webhook completed clean delivery run [`33155463943`](https://github.com/respramon/marketops-id/actions/runs/33155463943) (18 cards,
+zero errors, webhook-free artifact), and the scheduler is re-enabled. Every
+public production QA run so far still has event `workflow_dispatch`; a manual
+run is not enough for Track 2. The owner must capture at least three later
+genuine GitHub Actions runs whose event is `schedule`, along with clean logs,
+artifacts, timestamps, state restoration, and notification results. Those real entries belong in
 `evidence/unattended-runs.md` and must appear in the judging video.
 
 ## Scope and Safety

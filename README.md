@@ -15,10 +15,13 @@ rank a research queue; suppress repeats; and deliver evidence-linked briefs.
 > **Research triage only.** MarketOps ID does not provide BUY/SELL
 > recommendations, target prices, trading signals, or trade execution.
 
-> **Security status (28 August 2026): BLOCKED.** The scheduler and Discord
-> delivery are temporarily disabled after generated Actions artifacts exposed
-> the old webhook URL. The affected artifacts were deleted, the webhook was
-> revoked, and the stale secret was removed. See
+> **Security status (28 August 2026): SEC-001 remediated.** Generated Actions
+> artifacts had exposed the old webhook URL. The affected artifacts were
+> deleted, the webhook was revoked, and the stale secret was removed. A
+> redacting logger plus a fail-closed pre-upload artifact scrub are now
+> committed and CI-verified, and live delivery run [`33155463943`](https://github.com/respramon/marketops-id/actions/runs/33155463943)
+> posted 18 cards with a webhook-free artifact, so scheduling and delivery are
+> enabled again. See
 > [`SEC-001`](docs/security-audit.md#sec-001-discord-webhook-credential-disclosed-in-uploaded-workflow-logs)
 > before operating or presenting the automation.
 
@@ -151,10 +154,12 @@ Scheduled cycles use live mode, restore the prior SQLite state from a private
 Actions cache, write a step summary, and upload logs plus HTML/JSON artifacts.
 They never auto-commit runtime state.
 
-The schedule is currently **disabled manually** as incident containment. It
-must remain disabled until the secret-redacting logger and pre-upload artifact
-scrub are committed, pushed, CI-verified, and a newly issued webhook passes a
-clean replacement delivery test.
+The schedule was disabled manually during SEC-001 containment and was
+**re-enabled on 28 August 2026**, once the secret-redacting logger and
+pre-upload artifact scrub were committed, pushed, CI-verified (run `33153711435`), and
+a newly issued webhook passed clean delivery run [`33155463943`](https://github.com/respramon/marketops-id/actions/runs/33155463943).
+No genuine `schedule` event has fired yet; the next weekday cron is Monday
+31 August 2026, 07:17 WIB.
 
 Two public `workflow_dispatch` fixture runs on 27 August 2026 verified the
 same hosted-runner installation, artifact upload, and cache restore/save path:

@@ -41,11 +41,11 @@ to make development and judging replay deterministic without spending credits.
 
 ## End-to-End Run
 
-1. When GitHub Actions is safely re-enabled for the pushed repository, its
-   weekday schedule is configured to start `marketops run --mode live --trigger
-   schedule`. A manual trigger exists for diagnosis, but is not the Track 2
-   proof. The scheduler is disabled during SEC-001 containment and no genuine
-   scheduled execution is documented yet; see
+1. The weekday schedule starts `marketops run --mode live --trigger schedule`.
+   A manual trigger exists for diagnosis, but is not the Track 2 proof. The
+   scheduler was disabled during SEC-001 containment and re-enabled on
+   2026-08-28 after the remediation was CI-verified and a clean delivery run
+   was inspected; no genuine scheduled execution is documented yet. See
    [`../evidence/unattended-runs.md`](../evidence/unattended-runs.md).
 2. The typed HTTP client performs broad discovery over a configured lookback:
    filings, suspensions, and the top gainers and losers for the `1d` period.

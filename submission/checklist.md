@@ -114,7 +114,8 @@ final media, or portal access. Re-run every check immediately before submission.
 - [x] Scheduled workflow committed with weekday `00:17 UTC` / approximately
   `07:17 WIB` cron.
 - [x] Scheduler disabled manually during SEC-001 containment.
-- [ ] Re-enable the scheduler only after a clean replacement webhook run.
+- [x] Scheduler re-enabled on 2026-08-28 after clean replacement webhook run
+  [`33155463943`](https://github.com/respramon/marketops-id/actions/runs/33155463943) delivered 18 cards with a webhook-free artifact.
 - [x] `workflow_dispatch` retained only for testing and clearly distinguished.
 - [x] SQLite fixture state restore/save verified across separate hosted runners:
   [first run](https://github.com/respramon/marketops-id/actions/runs/33036266340)
@@ -235,9 +236,11 @@ final media, or portal access. Re-run every check immediately before submission.
 
 ## Current Human Gate
 
-`[BLOCKED: SECURITY REMEDIATION + HUMAN ACTION REQUIRED]` First publish and
-CI-verify the two-layer SEC-001 fix. Then the account owner must create a new
-Discord webhook and store it only as a GitHub Secret. After one clean manual
-delivery artifact is inspected, re-enable the scheduler and collect three later
-genuine `schedule` events. Citizenship/team declarations, final video
-recording/upload, social post, and portal submission still require the owner.
+`[BLOCKED: AWAITING SCHEDULED RUNS + HUMAN ACTION REQUIRED]` The two-layer
+SEC-001 fix is published and CI-verified (run 33153711435), a new Discord webhook is
+stored only as a GitHub Secret, its clean manual delivery artifact was
+inspected (run 33155463943: 18 cards, zero errors, no webhook material), and
+the scheduler is re-enabled. Three later genuine `schedule` events must still
+be collected (first possible fire: Monday 2026-08-31, 07:17 WIB).
+Citizenship/team declarations, final video recording/upload, social post, and
+portal submission still require the owner.
