@@ -12,8 +12,6 @@
 
 from __future__ import annotations
 
-import logging
-import sys
 from pathlib import Path
 from typing import Annotated
 
@@ -24,6 +22,7 @@ from .config import get_settings, load_scoring, load_watchlist
 from .models import RunMode, RunStatus
 from .pipeline import execute
 from .render import console_summary
+from .security import configure_safe_logging, redact_text
 from .state import StateStore
 
 app = typer.Typer(
@@ -36,20 +35,14 @@ app = typer.Typer(
 )
 
 
-def _configure_logging(level: str, json_logs: bool = False) -> None:
+def _configure_logging(
+    level: str,
+    json_logs: bool = False,
+    *,
+    secrets: tuple[str, ...] = (),
+) -> None:
     """Structured, greppable logs. CI reads these as unattended-run evidence."""
-    fmt = (
-        '{"ts":"%(asctime)s","level":"%(levelname)s","logger":"%(name)s","msg":"%(message)s"}'
-        if json_logs
-        else "%(asctime)s  %(levelname)-7s  %(name)-22s  %(message)s"
-    )
-    logging.basicConfig(
-        level=getattr(logging, level.upper(), logging.INFO),
-        format=fmt,
-        datefmt="%Y-%m-%dT%H:%M:%S%z",
-        stream=sys.stdout,
-        force=True,
-    )
+    configure_safe_logging(level, json_logs=json_logs, secrets=secrets)
 
 
 def _ok(message: str) -> None:
@@ -77,6 +70,8 @@ def doctor(
     """
     typer.secho(f"\nMarketOps ID v{__version__} - doctor\n", bold=True)
     settings = get_settings()
+    secrets = settings.secret_values_for_redaction
+    _configure_logging(settings.log_level, secrets=secrets)
     failures = 0
     warnings = 0
 
@@ -90,13 +85,13 @@ def doctor(
             f"max={scoring.maximum_score})"
         )
     except (OSError, ValueError) as exc:
-        _fail(f"scoring.yml invalid: {exc}")
+        _fail(redact_text(f"scoring.yml invalid: {exc}", secrets))
         failures += 1
     try:
         watchlist = load_watchlist(settings.watchlist_path)
         _ok(f"watchlist.yml valid ({len(watchlist.covered)} covered, {len(watchlist.muted)} muted)")
     except (OSError, ValueError) as exc:
-        _fail(f"watchlist.yml invalid: {exc}")
+        _fail(redact_text(f"watchlist.yml invalid: {exc}", secrets))
         failures += 1
 
     # --- directories ------------------------------------------------------
@@ -111,7 +106,7 @@ def doctor(
                 target.mkdir(parents=True, exist_ok=True)
                 _ok(f"{label} writable: {target}")
             except OSError as exc:
-                _fail(f"{label} not writable: {exc}")
+                _fail(redact_text(f"{label} not writable: {exc}", secrets))
                 failures += 1
         elif target.exists():
             count = len(list(target.glob("*.json")))
@@ -134,7 +129,7 @@ def doctor(
             failures += 1
         store.close()
     except Exception as exc:
-        _fail(f"sqlite unavailable: {type(exc).__name__}: {exc}")
+        _fail(redact_text(f"sqlite unavailable: {type(exc).__name__}: {exc}", secrets))
         failures += 1
 
     # --- credentials ------------------------------------------------------
@@ -182,7 +177,7 @@ def doctor(
                     client.ping()
                 _ok("authenticated against api.sectors.app/v2 (1 credit spent)")
             except Exception as exc:
-                _fail(f"{type(exc).__name__}: {exc}")
+                _fail(redact_text(f"{type(exc).__name__}: {exc}", secrets))
                 failures += 1
     else:
         typer.secho("\nSectors API reachability", bold=True)
@@ -228,7 +223,8 @@ def run(
 ) -> None:
     """Execute one full pipeline run. This is what the scheduler calls."""
     settings = get_settings()
-    _configure_logging(settings.log_level, json_logs)
+    secrets = settings.secret_values_for_redaction
+    _configure_logging(settings.log_level, json_logs, secrets=secrets)
 
     if mode is RunMode.LIVE and not settings.has_api_key:
         typer.secho(
@@ -248,7 +244,7 @@ def run(
     )
 
     typer.echo("")
-    typer.echo(console_summary(report))
+    typer.echo(redact_text(console_summary(report), secrets))
 
     if report.status is RunStatus.FAILED:
         raise typer.Exit(code=1)
@@ -262,6 +258,8 @@ def report(
 ) -> None:
     """Re-print the most recent run and the unattended run history."""
     settings = get_settings()
+    secrets = settings.secret_values_for_redaction
+    _configure_logging(settings.log_level, secrets=secrets)
     store = StateStore(settings.db_path)
     try:
         latest = store.latest_report()
@@ -271,7 +269,7 @@ def report(
                 fg=typer.colors.YELLOW,
             )
             raise typer.Exit(code=1)
-        typer.echo(console_summary(latest))
+        typer.echo(redact_text(console_summary(latest), secrets))
         history = store.recent_runs(limit)
         if history:
             typer.echo("")
@@ -283,10 +281,13 @@ def report(
             typer.echo(header)
             for row in history:
                 typer.echo(
-                    f"  {row['run_id']:<28} {row['trigger']:<10} {row['mode']:<8} "
-                    f"{row['status']:<8} {row['events_detected']:>4} {row['new_events']:>4} "
-                    f"{row['duplicate_events_suppressed']:>4} "
-                    f"{row['notifications_sent']:>5} {row['estimated_api_credits']:>4}"
+                    redact_text(
+                        f"  {row['run_id']:<28} {row['trigger']:<10} {row['mode']:<8} "
+                        f"{row['status']:<8} {row['events_detected']:>4} "
+                        f"{row['new_events']:>4} {row['duplicate_events_suppressed']:>4} "
+                        f"{row['notifications_sent']:>5} {row['estimated_api_credits']:>4}",
+                        secrets,
+                    )
                 )
     finally:
         store.close()
@@ -301,7 +302,10 @@ def serve(
     import uvicorn
 
     settings = get_settings()
-    _configure_logging(settings.log_level)
+    _configure_logging(
+        settings.log_level,
+        secrets=settings.secret_values_for_redaction,
+    )
     typer.secho(f"MarketOps ID dashboard on http://{host}:{port}", fg=typer.colors.GREEN)
     uvicorn.run("marketops.web:app", host=host, port=port, log_level=settings.log_level.lower())
 

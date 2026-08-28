@@ -143,6 +143,10 @@ class TestSettings:
             settings = Settings(_env_file=None, SECTORS_API_KEY=blank)  # type: ignore[call-arg]
             assert settings.has_api_key is False
 
+    def test_non_blank_secret_typo_that_is_too_short_is_rejected(self) -> None:
+        with pytest.raises(ValueError, match="at least 8 characters"):
+            Settings(_env_file=None, SECTORS_API_KEY="short")  # type: ignore[call-arg]
+
     def test_webhook_presence_detection(self) -> None:
         discord = Settings(_env_file=None, DISCORD_WEBHOOK_URL="https://x.test/h")  # type: ignore[call-arg]
         generic = Settings(_env_file=None, GENERIC_WEBHOOK_URL="https://y.test/h")  # type: ignore[call-arg]

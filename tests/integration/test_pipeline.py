@@ -473,6 +473,36 @@ class TestLiveMode:
         mdka = next(d for d in report.queue if d.symbol == "MDKA")
         assert mdka.score.total == 30  # 50 minus the 20-point flow anomaly
 
+    @respx.mock
+    def test_reflected_api_key_never_reaches_report_artifacts_or_sqlite(
+        self,
+        settings: Settings,
+    ) -> None:
+        self._mock_all()
+        assert settings.sectors_api_key is not None
+        secret = settings.sectors_api_key.get_secret_value()
+        respx.get(f"{BASE}/v2/filings/").mock(
+            return_value=httpx.Response(
+                400,
+                json={"error": f"upstream reflected Authorization value {secret}"},
+            )
+        )
+
+        report = execute(
+            settings=settings,
+            mode=RunMode.LIVE,
+            notify=False,
+            clock=lambda: CLOCK,
+        )
+
+        secret_bytes = secret.encode("utf-8")
+        assert report.status is RunStatus.PARTIAL
+        assert secret not in report.model_dump_json()
+        assert "[REDACTED]" in report.model_dump_json()
+        artifact_files = (path for path in settings.artifact_dir.rglob("*") if path.is_file())
+        assert all(secret_bytes not in path.read_bytes() for path in artifact_files)
+        assert secret_bytes not in settings.db_path.read_bytes()
+
 
 class TestExecuteEntryPoint:
     def test_execute_writes_every_artifact(self, settings: Settings, tmp_path: Path) -> None:

@@ -65,6 +65,7 @@ from .sectors import (
     MarketDataSource,
     SectorsClient,
 )
+from .security import redact_structure, redact_text
 from .state import StateStore
 
 logger = logging.getLogger(__name__)
@@ -127,6 +128,18 @@ class Pipeline:
     def _credits(self) -> int:
         return int(getattr(self.source.ledger, "spent", 0))
 
+    def _safe_text(self, value: object) -> str:
+        """Redact credentials from any external exception or source warning."""
+        return redact_text(str(value), self.settings.secret_values_for_redaction)
+
+    def _safe_report(self, report: RunReport) -> RunReport:
+        """Redact every string before notification, artifacts, or SQLite persistence."""
+        safe_data = redact_structure(
+            report.model_dump(mode="python"),
+            self.settings.secret_values_for_redaction,
+        )
+        return RunReport.model_validate(safe_data)
+
     def _attempt(
         self,
         name: SourceName,
@@ -138,31 +151,33 @@ class Pipeline:
         try:
             result = action()
         except CreditBudgetExceededError as exc:
-            logger.warning("source.budget_exhausted source=%s detail=%s", name.value, exc)
+            safe_error = self._safe_text(exc)
+            logger.warning("source.budget_exhausted source=%s detail=%s", name.value, safe_error)
             return [], SourceReport(
                 name=name,
                 state=SourceState.BUDGET_EXHAUSTED,
                 credits=self._credits() - before,
                 calls=int(getattr(self.source.ledger, "calls", 0)) - calls_before,
-                error=str(exc),
+                error=safe_error,
             )
         except Exception as exc:
             # Deliberately broad. An unattended job must degrade to PARTIAL and
             # name the gap, never die because one source raised something
             # unanticipated. KeyboardInterrupt/SystemExit still propagate.
-            logger.error(
-                "source.failed source=%s error=%s: %s", name.value, type(exc).__name__, exc
-            )
+            safe_error = self._safe_text(exc)
+            logger.error("source.failed source=%s error=%s", name.value, safe_error)
             return [], SourceReport(
                 name=name,
                 state=SourceState.FAILED,
                 credits=self._credits() - before,
                 calls=int(getattr(self.source.ledger, "calls", 0)) - calls_before,
-                error=f"{type(exc).__name__}: {exc}",
+                error=f"{type(exc).__name__}: {safe_error}",
             )
         self._skipped_records += result.skipped
         pop_warning = getattr(self.source, "pop_warning", None)
         source_gap = pop_warning(name.value) if callable(pop_warning) else None
+        if source_gap is not None:
+            source_gap = self._safe_text(source_gap)
         logger.info(
             "source.ok source=%s events=%d skipped=%d credits=%d",
             name.value,
@@ -409,6 +424,7 @@ class Pipeline:
             credit_budget=self.settings.max_api_credits_per_run,
             dossiers=dossiers,
         )
+        report = self._safe_report(report)
 
         # Evidence was atomically claimed above. Delivery has its own audit
         # table: if a webhook fails, the event remains pending for a safe retry
@@ -427,7 +443,7 @@ class Pipeline:
                     [dossier for dossier in report.queue if dossier.is_new]
                 )
             if errors:
-                report.notify_error = "; ".join(errors)
+                report.notify_error = self._safe_text("; ".join(errors))
                 report.warnings.append(f"Notification issue: {report.notify_error}")
                 if report.status is RunStatus.OK:
                     report.status = RunStatus.PARTIAL
@@ -438,6 +454,7 @@ class Pipeline:
                     self.store.record_alert(self.run_id, dossier, channel, stamp)
 
         report.finished_at = self.clock()
+        report = self._safe_report(report)
         self.store.record_run(report)
 
         logger.info(

@@ -90,6 +90,24 @@ class TestDoctor:
         assert result.exit_code == 1
         assert "cannot probe" in result.stdout
 
+    def test_check_api_redacts_a_reflected_key_from_errors(
+        self,
+        cli_env: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        secret = "test-reflected-doctor-key"
+        monkeypatch.setenv("SECTORS_API_KEY", secret)
+        get_settings.cache_clear()
+
+        def fail_ping(_client: object) -> bool:
+            raise RuntimeError(f"upstream reflected {secret}")
+
+        monkeypatch.setattr("marketops.sectors.SectorsClient.ping", fail_ping)
+        result = runner.invoke(app, ["doctor", "--check-api"])
+        assert result.exit_code == 1
+        assert secret not in result.stdout
+        assert "[REDACTED]" in result.stdout
+
 
 class TestRun:
     def test_fixture_run_succeeds_and_prints_the_queue(self, cli_env: Path) -> None:
@@ -141,6 +159,23 @@ class TestRun:
     def test_json_logs_flag_emits_structured_lines(self, cli_env: Path) -> None:
         result = runner.invoke(app, ["run", "--mode", "fixture", "--no-notify", "--json-logs"])
         assert result.exit_code == 0
+
+    def test_console_summary_is_redacted_before_typer_prints_it(
+        self,
+        cli_env: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        secret = "test-console-secret-value"
+        monkeypatch.setenv("SECTORS_API_KEY", secret)
+        get_settings.cache_clear()
+        monkeypatch.setattr(
+            "marketops.cli.console_summary",
+            lambda _report: f"summary reflected {secret}",
+        )
+        result = runner.invoke(app, ["run", "--mode", "fixture", "--no-notify"])
+        assert result.exit_code == 0
+        assert secret not in result.stdout
+        assert "[REDACTED]" in result.stdout
 
     def test_fail_on_partial_leaves_a_clean_run_alone(self, cli_env: Path) -> None:
         result = runner.invoke(

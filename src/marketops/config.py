@@ -116,6 +116,37 @@ class Settings(BaseSettings):
         validation_alias="MARKETOPS_ENABLE_API_DOCS",
     )
 
+    @field_validator(
+        "sectors_api_key",
+        "discord_webhook_url",
+        "generic_webhook_url",
+        mode="before",
+    )
+    @classmethod
+    def _validate_secret(cls, value: Any) -> Any:
+        """Treat blank secrets as absent and reject dangerously short typos."""
+        if value is None:
+            return None
+        raw = value.get_secret_value() if isinstance(value, SecretStr) else str(value)
+        if not raw.strip():
+            return None
+        if len(raw) < 8:
+            raise ValueError("configured credentials must contain at least 8 characters")
+        return value
+
+    @property
+    def secret_values_for_redaction(self) -> tuple[str, ...]:
+        """Credential values for in-memory redaction only; never print this property."""
+        return tuple(
+            secret.get_secret_value()
+            for secret in (
+                self.sectors_api_key,
+                self.discord_webhook_url,
+                self.generic_webhook_url,
+            )
+            if secret is not None
+        )
+
     @property
     def has_api_key(self) -> bool:
         """True when a non-empty Sectors API key is configured."""

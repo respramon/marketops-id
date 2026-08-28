@@ -194,8 +194,26 @@ jobs:
           compgen -G "${MARKETOPS_ARTIFACT_DIR}/*-summary.md" > /dev/null
           python -m json.tool "${MARKETOPS_ARTIFACT_DIR}/latest.json" > /dev/null
 
-      - name: Save persistent deduplication state
+      - name: Scan persistent state for secrets
+        id: state_scan
         if: ${{ always() && steps.pipeline.outcome != 'skipped' && hashFiles('data/**/*.db') != '' }}
+        env:
+          STATE_SCOPE: ${{ steps.policy.outputs.state_scope }}
+          SECTORS_API_KEY: ${{ secrets.SECTORS_API_KEY }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          GENERIC_WEBHOOK_URL: ${{ secrets.GENERIC_WEBHOOK_URL }}
+        run: |
+          python -m marketops.security \
+            "data/${STATE_SCOPE}" \
+            --detect-only \
+            --fail-if-found \
+            --github-output "${GITHUB_OUTPUT}"
+
+      - name: Save persistent deduplication state
+        if: >-
+          ${{ always() && steps.pipeline.outcome != 'skipped' &&
+              steps.state_scan.outcome == 'success' &&
+              steps.state_scan.outputs.scan_complete == 'true' }}
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: data/${{ steps.policy.outputs.state_scope }}
@@ -203,8 +221,24 @@ jobs:
             marketops-state-v1-${{ runner.os }}-${{ github.ref_name }}-${{
             steps.policy.outputs.state_scope }}-${{ github.run_id }}-${{ github.run_attempt }}
 
-      - name: Write workflow run summary
+      - name: Sanitize and verify run artifacts
+        id: artifact_scan
         if: always()
+        env:
+          SECTORS_API_KEY: ${{ secrets.SECTORS_API_KEY }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          GENERIC_WEBHOOK_URL: ${{ secrets.GENERIC_WEBHOOK_URL }}
+        run: |
+          set -o pipefail
+          python -m marketops.security \
+            "${MARKETOPS_ARTIFACT_DIR}" \
+            --github-output "${GITHUB_OUTPUT}" \
+            2>&1 | tee -a "${MARKETOPS_ARTIFACT_DIR}/workflow.log"
+
+      - name: Write workflow run summary
+        if: >-
+          ${{ always() && steps.artifact_scan.outcome == 'success' &&
+              steps.artifact_scan.outputs.scan_complete == 'true' }}
         env:
           RUN_MODE: ${{ steps.policy.outputs.mode }}
           TRIGGER_KIND: ${{ steps.policy.outputs.trigger }}
@@ -243,7 +277,10 @@ jobs:
           PY
 
       - name: Upload run evidence
-        if: always()
+        id: evidence_upload
+        if: >-
+          ${{ always() && steps.artifact_scan.outcome == 'success' &&
+              steps.artifact_scan.outputs.scan_complete == 'true' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: >-
@@ -252,3 +289,24 @@ jobs:
           path: artifacts/
           if-no-files-found: error
           retention-days: 30
+
+      - name: Enforce artifact safety
+        if: always()
+        env:
+          SCAN_OUTCOME: ${{ steps.artifact_scan.outcome }}
+          SCAN_COMPLETE: ${{ steps.artifact_scan.outputs.scan_complete }}
+          SECRET_FINDINGS: ${{ steps.artifact_scan.outputs.findings }}
+          UPLOAD_OUTCOME: ${{ steps.evidence_upload.outcome }}
+        run: |
+          if [[ "${SCAN_OUTCOME}" != "success" || "${SCAN_COMPLETE}" != "true" ]]; then
+            echo "Artifact safety scan did not complete; evidence upload was blocked."
+            exit 1
+          fi
+          if [[ "${UPLOAD_OUTCOME}" != "success" ]]; then
+            echo "Sanitized evidence was not uploaded successfully."
+            exit 1
+          fi
+          if [[ "${SECRET_FINDINGS:-0}" != "0" ]]; then
+            echo "Credential material was redacted from run evidence; rotate it and inspect the run."
+            exit 1
+          fi
