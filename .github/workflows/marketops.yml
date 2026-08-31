@@ -19,6 +19,11 @@ on:
   schedule:
     # Asia/Jakarta is UTC+7 year-round: 00:17 UTC = 07:17 WIB.
     - cron: "17 0 * * 1-5"
+    # Temporary post-remediation observation window for Monday 31 August
+    # 2026. These are genuine unattended live cycles using the same production
+    # state and safeguards. Remove this entry after three schedule events have
+    # been captured; the normal 07:17 WIB cadence above remains authoritative.
+    - cron: "7,17,27 4 * * 1"
 
 permissions:
   contents: read
