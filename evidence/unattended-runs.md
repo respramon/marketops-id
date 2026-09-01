@@ -2,81 +2,101 @@
 
 ## Track 2 Qualification
 
-**Status: `[BLOCKED: AWAITING SCHEDULED RUNS]`**
+**Status: `PASS` for the three run records; screenshots still pending.**
 
-As of 2026-08-28, no genuine scheduled run has been observed. The three entries
-below are intentionally unfilled. They must be populated from real `schedule`
-runs; manual or fixture executions must not be substituted.
+Three genuine GitHub Actions executions whose triggering event is exactly
+`schedule` completed successfully and are recorded below. Every value was
+transcribed mechanically from each run's own uploaded artifact by
+`scripts/capture_schedule_evidence.py`, which refuses to record a run unless
+the GitHub event and the artifact's own `trigger` field both read `schedule`
+and the mode reads `live`. No manual or fixture execution was substituted.
 
-Every precondition is now met: the SEC-001 remediation is published and
-CI-verified (run 33153711435), a replacement webhook passed clean manual delivery run
-33155463943 (18 cards, zero errors, webhook-free artifact), and the scheduler
-was re-enabled on 2026-08-28. The first possible qualifying firing is Monday
-2026-08-31 at 07:17 WIB. Three weekday firings plus evidence capture are still
-required.
+Deduplication is demonstrated across the unattended cycles rather than
+asserted: run 1 saw 63 events (59 new, 4 suppressed), run 2 saw 80 events and
+suppressed 40 duplicates carried over from run 1, and run 3 saw 84 events and
+suppressed 30. Each run stayed inside its 15/15 credit budget and returned
+`PARTIAL`, which is the intended fail-soft verdict for the explicit one-page
+news cap, not an error.
+
+Two disclosures, so the record cannot be read as stronger than it is. First,
+the two 31 August firings came from a temporary observation-window cron
+(`7,17,27 4 * * 1`, commit `10ff99b`) added to shorten the post-remediation
+wait; they are still genuine unattended `schedule` events using production
+state and the same safeguards, not manual dispatches. Second, GitHub's
+scheduler delivered all three later than their cron minute, which is normal
+hosted-cron behaviour; the times in each table are the artifact's real
+start/finish stamps, not the cron's nominal time.
+
+Security: each artifact was downloaded and scanned twice before recording, by
+the shared `marketops.security` scanner and by an independent regex in the
+capture script. All three returned zero webhook-URL matches, confirming the
+SEC-001 fix holds on unattended live deliveries.
+
+Remaining: the screenshot rows are deliberately left `[BLOCKED: ...]` because
+a human must capture the Actions history/detail images.
 
 ## Genuine Scheduled Run 1
 
 | Field | Evidence |
 |---|---|
-| Run ID | `[BLOCKED: waiting for first schedule execution]` |
-| Trigger type | Must be `schedule` |
-| Started time | `[BLOCKED: copy exact timestamp from run JSON]` |
-| Finished time | `[BLOCKED: copy exact timestamp from run JSON]` |
-| Mode | Must be `live` |
-| Status | `[BLOCKED: actual OK/PARTIAL/FAILED result]` |
-| Events detected | `[BLOCKED: actual counter]` |
-| New events | `[BLOCKED: actual counter]` |
-| Duplicate events suppressed | `[BLOCKED: actual counter]` |
-| Notifications sent | `[BLOCKED: actual counter and delivery semantics]` |
-| Estimated API credits | `[BLOCKED: actual value/budget]` |
-| Artifact name | `[BLOCKED: exact GitHub artifact name]` |
-| Workflow run URL | `[BLOCKED: public GitHub Actions URL]` |
+| Run ID | `33360850299` |
+| Trigger type | `schedule` (confirmed by GitHub event and run artifact) |
+| Started time | `2026-08-31T12:31:55.159439+07:00` |
+| Finished time | `2026-08-31T12:32:01.467645+07:00` |
+| Mode | `live` |
+| Status | `PARTIAL` |
+| Events detected | 63 |
+| New events | 59 |
+| Duplicate events suppressed | 4 |
+| Notifications sent | 8 |
+| Estimated API credits | 15/15 |
+| Artifact name | `marketops-schedule-live-33360850299-1` |
+| Workflow run URL | [33360850299](https://github.com/respramon/marketops-id/actions/runs/33360850299) |
 | Screenshot | `[BLOCKED: submission/assets/scheduled-run.png]` |
 
-Verification note: _pending._
+Verification note: Artifact `marketops-schedule-live-33360850299-1` was downloaded and scanned on capture: zero webhook-URL matches from both the shared redaction scanner and an independent regex.
 
 ## Genuine Scheduled Run 2
 
 | Field | Evidence |
 |---|---|
-| Run ID | `[BLOCKED: waiting for second schedule execution]` |
-| Trigger type | Must be `schedule` |
-| Started time | `[BLOCKED: copy exact timestamp from run JSON]` |
-| Finished time | `[BLOCKED: copy exact timestamp from run JSON]` |
-| Mode | Must be `live` |
-| Status | `[BLOCKED: actual OK/PARTIAL/FAILED result]` |
-| Events detected | `[BLOCKED: actual counter]` |
-| New events | `[BLOCKED: actual counter]` |
-| Duplicate events suppressed | `[BLOCKED: actual counter]` |
-| Notifications sent | `[BLOCKED: actual counter and delivery semantics]` |
-| Estimated API credits | `[BLOCKED: actual value/budget]` |
-| Artifact name | `[BLOCKED: exact GitHub artifact name]` |
-| Workflow run URL | `[BLOCKED: public GitHub Actions URL]` |
+| Run ID | `33383915122` |
+| Trigger type | `schedule` (confirmed by GitHub event and run artifact) |
+| Started time | `2026-08-31T17:46:36.024039+07:00` |
+| Finished time | `2026-08-31T17:46:41.997574+07:00` |
+| Mode | `live` |
+| Status | `PARTIAL` |
+| Events detected | 80 |
+| New events | 40 |
+| Duplicate events suppressed | 40 |
+| Notifications sent | 9 |
+| Estimated API credits | 15/15 |
+| Artifact name | `marketops-schedule-live-33383915122-1` |
+| Workflow run URL | [33383915122](https://github.com/respramon/marketops-id/actions/runs/33383915122) |
 | Screenshot | `[BLOCKED: include in submission/assets/actions-history.png]` |
 
-Verification note: _pending._
+Verification note: Artifact `marketops-schedule-live-33383915122-1` was downloaded and scanned on capture: zero webhook-URL matches from both the shared redaction scanner and an independent regex.
 
 ## Genuine Scheduled Run 3
 
 | Field | Evidence |
 |---|---|
-| Run ID | `[BLOCKED: waiting for third schedule execution]` |
-| Trigger type | Must be `schedule` |
-| Started time | `[BLOCKED: copy exact timestamp from run JSON]` |
-| Finished time | `[BLOCKED: copy exact timestamp from run JSON]` |
-| Mode | Must be `live` |
-| Status | `[BLOCKED: actual OK/PARTIAL/FAILED result]` |
-| Events detected | `[BLOCKED: actual counter]` |
-| New events | `[BLOCKED: actual counter]` |
-| Duplicate events suppressed | `[BLOCKED: actual counter]` |
-| Notifications sent | `[BLOCKED: actual counter and delivery semantics]` |
-| Estimated API credits | `[BLOCKED: actual value/budget]` |
-| Artifact name | `[BLOCKED: exact GitHub artifact name]` |
-| Workflow run URL | `[BLOCKED: public GitHub Actions URL]` |
+| Run ID | `33472247776` |
+| Trigger type | `schedule` (confirmed by GitHub event and run artifact) |
+| Started time | `2026-09-01T12:05:28.849883+07:00` |
+| Finished time | `2026-09-01T12:05:34.790718+07:00` |
+| Mode | `live` |
+| Status | `PARTIAL` |
+| Events detected | 84 |
+| New events | 54 |
+| Duplicate events suppressed | 30 |
+| Notifications sent | 16 |
+| Estimated API credits | 15/15 |
+| Artifact name | `marketops-schedule-live-33472247776-1` |
+| Workflow run URL | [33472247776](https://github.com/respramon/marketops-id/actions/runs/33472247776) |
 | Screenshot | `[BLOCKED: include in submission/assets/actions-history.png]` |
 
-Verification note: _pending._
+Verification note: Artifact `marketops-schedule-live-33472247776-1` was downloaded and scanned on capture: zero webhook-URL matches from both the shared redaction scanner and an independent regex.
 
 ## Non-Qualifying Local Replay Already Verified
 
