@@ -1,0 +1,223 @@
+1
+00:00:00,000 --> 00:00:03,765
+Analis riset saham Indonesia
+memulai hari dengan pertanyaan yang
+
+2
+00:00:03,765 --> 00:00:07,471
+sama: dari begitu banyak sinyal
+yang tersebar di layar berbeda,
+
+3
+00:00:07,471 --> 00:00:09,824
+mana yang harus saya periksa lebih dulu?
+
+4
+00:00:09,824 --> 00:00:12,000
+MarketOps ID menjawab pertanyaan itu.
+
+5
+00:00:12,000 --> 00:00:15,377
+Sumbernya satu: Sectors
+Financial API versi dua.
+
+6
+00:00:15,377 --> 00:00:20,794
+Enam kapabilitas filing, suspensi,
+penggerak harga harian, berita per emiten,
+
+7
+00:00:20,794 --> 00:00:26,000
+aliran dana asing, dan aksi korporasi
+digabung menjadi satu antrean riset.
+
+8
+00:00:26,000 --> 00:00:28,466
+Bukti dikorelasikan per ticker kanonik,
+
+9
+00:00:28,466 --> 00:00:32,514
+lalu dinilai dengan Research
+Attention Score yang deterministik.
+
+10
+00:00:32,514 --> 00:00:37,257
+Skornya transparan: setiap komponen
+menampilkan alasan dan bukti sumbernya.
+
+11
+00:00:37,257 --> 00:00:42,000
+Yang Anda lihat ini replay historis
+tersanitasi, bukan data pasar langsung.
+
+12
+00:00:42,000 --> 00:00:45,083
+Suspensi bursa langsung
+mengangkat emiten ke P1.
+
+13
+00:00:45,083 --> 00:00:47,523
+Aturan lain menimbang filing material,
+
+14
+00:00:47,523 --> 00:00:50,413
+lonjakan harga, anomali
+aliran asing, berita,
+
+15
+00:00:50,413 --> 00:00:53,046
+aksi korporasi, dan watchlist meja riset.
+
+16
+00:00:53,046 --> 00:00:56,000
+Ini triase riset, bukan
+rekomendasi investasi.
+
+17
+00:00:56,000 --> 00:00:59,953
+Deduplikasi bekerja lintas siklus,
+bukan hanya di dalam satu run.
+
+18
+00:00:59,953 --> 00:01:03,480
+Run terjadwal pertama mendeteksi
+enam puluh tiga kejadian,
+
+19
+00:01:03,480 --> 00:01:05,791
+lima puluh sembilan di antaranya baru.
+
+20
+00:01:05,791 --> 00:01:07,858
+Run berikutnya menekan empat puluh
+
+21
+00:01:07,858 --> 00:01:10,534
+duplikat, dan run ketiga
+menekan tiga puluh.
+
+22
+00:01:10,534 --> 00:01:14,000
+Analis tidak pernah menerima
+kejadian yang sama dua kali.
+
+23
+00:01:14,000 --> 00:01:15,500
+Inilah bukti Track 2.
+
+24
+00:01:15,500 --> 00:01:19,500
+Tiga eksekusi GitHub Actions
+asli dengan event schedule,
+
+25
+00:01:19,500 --> 00:01:21,929
+berjalan tanpa disentuh siapa pun,
+
+26
+00:01:21,929 --> 00:01:26,857
+memakai state produksi dan tetap di
+dalam anggaran lima belas kredit.
+
+27
+00:01:26,857 --> 00:01:32,429
+Dua di antaranya dipicu jendela observasi
+sementara tetap event schedule asli,
+
+28
+00:01:32,429 --> 00:01:34,000
+bukan dispatch manual.
+
+29
+00:01:34,000 --> 00:01:35,768
+Pengirimannya nyata.
+
+30
+00:01:35,768 --> 00:01:40,895
+Delapan belas kartu terkirim
+dalam empat batch, nol error.
+
+31
+00:01:40,895 --> 00:01:45,492
+Setiap kartu membawa skor,
+alasan, dan tautan bukti,
+
+32
+00:01:45,492 --> 00:01:50,000
+sehingga analis bisa langsung
+menelusuri sumbernya.
+
+33
+00:01:50,000 --> 00:01:53,579
+Kami juga menemukan masalah
+pada diri kami sendiri.
+
+34
+00:01:53,579 --> 00:01:58,491
+Log bawaan httpx menuliskan URL
+webhook secara utuh ke artefak publik.
+
+35
+00:01:58,491 --> 00:02:03,614
+Artefaknya kami hapus, webhook-nya
+kami cabut, penjadwalnya kami matikan.
+
+36
+00:02:03,614 --> 00:02:07,614
+Perbaikannya dua lapis:
+formatter yang meredaksi rahasia,
+
+37
+00:02:07,614 --> 00:02:11,123
+dan pemindai artefak
+fail-closed yang menggagalkan
+
+38
+00:02:11,123 --> 00:02:14,000
+workflow bila masih menemukan kredensial.
+
+39
+00:02:14,000 --> 00:02:21,200
+Empat ratus tes lulus dengan cakupan
+sembilan puluh lima koma enam dua persen,
+
+40
+00:02:21,200 --> 00:02:22,677
+CI publik hijau,
+
+41
+00:02:22,677 --> 00:02:30,062
+dan artefak setiap run terjadwal dipindai
+dua kali oleh dua pemindai independen.
+
+42
+00:02:30,062 --> 00:02:32,000
+Ketiganya nol temuan.
+
+43
+00:02:32,000 --> 00:02:34,727
+MarketOps ID mengubah bukti dari Sectors
+
+44
+00:02:34,727 --> 00:02:37,727
+menjadi antrean riset
+yang berjalan sendiri,
+
+45
+00:02:37,727 --> 00:02:40,727
+dapat diaudit, dan jujur
+tentang batasannya.
+
+46
+00:02:40,727 --> 00:02:44,477
+Keputusan investasi tetap
+sepenuhnya di tangan manusia.
+
+47
+00:02:44,477 --> 00:02:47,068
+MarketOps ID tidak memberi rekomendasi
+
+48
+00:02:47,068 --> 00:02:50,000
+investasi dan tidak
+mengeksekusi transaksi.
