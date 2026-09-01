@@ -1,6 +1,6 @@
 # Execution Status
 
-Status snapshot: **2026-08-28, Asia/Jakarta**. `PASS` means the code or
+Status snapshot: **2026-08-31, Asia/Jakarta**. `PASS` means the code or
 artifact exists and has been verified locally or against cited public
 evidence. A `BLOCKED` item names an external fact that cannot truthfully be
 fabricated from this workspace.
@@ -47,11 +47,13 @@ replay on 2026-08-27 observed 16 new events and five dry-preview cards on run
 one; the identical second replay suppressed 16 duplicates and rendered zero
 preview cards. No external delivery was claimed.
 
-The final exact CLI acceptance pair (without dry-notify) used a fresh database:
-run `run-20260827-104147-8a8ba2` observed 16 new events; run
-`run-20260827-104148-2dc614` observed zero new events and suppressed 16. Both
-reported zero deliveries and `PARTIAL` because no webhook is configured, which
-is the intended fail-soft result rather than a false success claim.
+The final exact CLI acceptance pair on 2026-08-31 used a fresh database and an
+isolated local HTTP 204 sink (not the production Discord destination). Run
+`run-20260831-110148-eade89` observed 16 new events and delivered five fixture
+cards; identical replay `run-20260831-110153-c05bf8` observed zero new events,
+suppressed all 16 duplicates, and delivered zero notifications. Both returned
+`OK`. This validates real delivery-state transitions without spending Sectors
+credits or claiming a public webhook event.
 
 ## Tests
 
@@ -92,7 +94,7 @@ schedule-triggered runs, independent of this green code checkpoint.
 
 ## Automation
 
-PARTIAL
+PASS
 
 The production workflow has both `workflow_dispatch` for tests and a weekday
 `17 0 * * 1-5` schedule, equivalent to approximately 07:17 WIB. Scheduled
@@ -102,8 +104,11 @@ save state, and never auto-commit runtime data.
 The redacting logger and pre-upload artifact scrub are committed, pushed, and
 CI-verified (`2e51bd8`; CI run 33153711435) and have now been exercised with a
 newly issued webhook in a clean manual run, so the scheduler was **re-enabled**
-on 2026-08-28 and the workflow is active again. No genuine `schedule` event has
-fired yet; the next weekday cron is Monday 2026-08-31, 07:17 WIB.
+on 2026-08-28 and the workflow is active again. Three genuine `schedule` events
+have since completed successfully (33360850299, 33383915122, 33472247776) and
+are recorded in `evidence/unattended-runs.md`. The temporary observation-window
+cron from `10ff99b` was removed once those three were captured, leaving the
+weekday `17 0 * * 1-5` cadence as the only schedule.
 
 Two public manual fixture runs verified the hosted execution path without
 claiming Track 2 qualification. Run
@@ -139,15 +144,35 @@ schedule-triggered Track 2 proof.
 
 ## Unattended Run Evidence
 
-BLOCKED
+PARTIAL
 
-No genuine GitHub Actions `schedule` run exists yet. As of 2026-08-28 the new
-webhook is stored as a GitHub Secret, the SEC-001 fix is CI-verified and was
-cleanly exercised by manual delivery run 33155463943, and the scheduler is
-re-enabled, so evidence collection can begin at the next weekday cron (Monday
-2026-08-31, 07:17 WIB). Three genuine schedule-triggered live executions and
-their matching artifacts/screenshots are still required. Manual live and
-fixture runs remain non-qualifying.
+Three genuine GitHub Actions executions whose triggering event is exactly
+`schedule` completed successfully: [`33360850299`](https://github.com/respramon/marketops-id/actions/runs/33360850299) and
+[`33383915122`](https://github.com/respramon/marketops-id/actions/runs/33383915122) on 2026-08-31, and
+[`33472247776`](https://github.com/respramon/marketops-id/actions/runs/33472247776) on 2026-09-01. Every counter in
+`evidence/unattended-runs.md` was transcribed mechanically from each run's
+own artifact by `scripts/capture_schedule_evidence.py`, which records a run
+only when the GitHub event and the artifact's own `trigger` field both read
+`schedule` and the mode reads `live`.
+
+Deduplication is demonstrated across the unattended cycles rather than
+asserted: run 2 suppressed 40 duplicates carried over from run 1, and run 3
+suppressed 30. Each run stayed inside its 15/15 credit budget. Each artifact
+was scanned twice before recording - by the shared `marketops.security`
+scanner and by an independent regex in the capture script - and all three
+returned zero webhook-URL matches, confirming the SEC-001 fix holds on
+unattended live deliveries.
+
+Two disclosures keep the record honest. The two 31 August firings came from
+a temporary observation-window cron (commit `10ff99b`, since removed) added
+to shorten the post-remediation wait; they are genuine unattended `schedule`
+events using production state, not manual dispatches. GitHub also delivered
+all three later than their nominal cron minute, which is normal hosted-cron
+behaviour; the recorded times are the artifacts' real stamps.
+
+This stays PARTIAL rather than PASS only because the screenshot rows still
+need a human capture (`submission/assets/actions-history.png` and
+`scheduled-run.png`). The run records themselves are complete and verified.
 
 ## Dashboard
 
@@ -227,19 +252,26 @@ actions.
 
 ## Current Blocker
 
-`[BLOCKED: AWAITING SCHEDULED RUNS]` SEC-001 remediation is complete: the
-two-layer fix is committed, pushed, public-CI-verified (`2e51bd8`; CI run
-33153711435), and safely exercised by clean manual delivery run 33155463943
-(18 cards, zero errors, webhook-free artifact). A new webhook is stored as a
-GitHub Secret and the weekday scheduler is re-enabled. The remaining gap is
-external: no genuine `schedule`-triggered run has fired yet (next: Monday
-2026-08-31, 07:17 WIB), and the judging video and portal entry are pending.
+`[BLOCKED: HUMAN CAPTURE + SUBMISSION]` The engineering work is complete and
+verified end to end. SEC-001 is remediated (`2e51bd8`; CI run 33153711435) and
+was exercised by clean manual delivery run 33155463943, then held up across
+three genuine unattended `schedule` executions (33360850299, 33383915122,
+33472247776) whose artifacts all scanned clean. Nothing further can be proven
+from this workspace without a human: the remaining items are the Actions
+history/detail screenshots, the judging video, the social post, and portal
+entry.
+
+One product observation, deliberately not changed this close to judging: every
+live run returns `PARTIAL` rather than `OK`, because the explicit one-page news
+cap and occasional malformed-record skips both register as warnings. That is
+the intended fail-soft behaviour, but it means the status field cannot
+currently distinguish a normal run from a degraded one. Revisit after
+submission.
 
 ## Next Action
 
-Let the re-enabled weekday scheduler run and capture three genuine
-`schedule`-triggered live executions with their artifacts and screenshots
-(first fire Monday 2026-08-31, 07:17 WIB), spot-checking each artifact for
-webhook cleanliness. Then record the judging video and complete portal entry.
-The logging/artifact remediation and one clean manual live delivery
-(run 33155463943) are already done and verified.
+Capture `submission/assets/actions-history.png` and `scheduled-run.png` from
+the three recorded schedule runs and fill the screenshot rows in
+`evidence/unattended-runs.md`. Refresh the demo stills from delivery run
+33155463943, regenerate the MP4s/captions, then record and upload the judging
+video, publish the social post, and complete portal entry.
